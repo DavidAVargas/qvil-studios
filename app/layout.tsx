@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Header } from "@/components/ui/header";
 import { inter } from "@/utils/fonts";
 import Providers from "@/components/DarkLightMode/providers";
 import "@/styles/globals.css";
@@ -18,9 +19,9 @@ export default function RootLayout({
       <body className={inter.variable}>
         <Providers>
           <div className="grid min-h-[100dvh] grid-rows-[auto_1fr_auto]">
-            <header>Header</header>
+            <header></header>
             <main>{children}</main>
-            <footer>Footer</footer>
+            <footer></footer>
           </div>
         </Providers>
       </body>
