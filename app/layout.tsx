@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className={inter.variable}>
         <Providers>
           <div className="grid min-h-[100dvh] grid-rows-[auto_1fr_auto]">
-            <header></header>
+            <Header />
             <main>{children}</main>
             <footer></footer>
           </div>

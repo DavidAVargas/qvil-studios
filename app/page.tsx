@@ -3,10 +3,8 @@ import { Hero } from "@/components/Heros/Hero";
 
 export default function Home() {
   return (
-    <div className="flex h-full grow flex-col items-center justify-center">
-      <>
+    <div className="flex h-full grow flex-col">
       <Hero />
-      </>
     </div>
   );
 }
