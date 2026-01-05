@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Header } from "@/components/ui/header";
+import { Header } from "@/components/Header/header";
 import { inter } from "@/utils/fonts";
 import Providers from "@/components/DarkLightMode/providers";
 import "@/styles/globals.css";
