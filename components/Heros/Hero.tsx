@@ -143,7 +143,7 @@ export function Hero() {
           <div className="space-y-6">
             <h1 className="text-8xl md:text-[12rem] font-black tracking-tighter leading-none">
               <span 
-                className="block text-white mb-4"
+                className="block text-white mb-2"
                 style={{
                   textShadow: '0 0 20px rgba(220,38,38,0.3), 0 0 40px rgba(220,38,38,0.15), 0 0 60px rgba(0,0,0,0.5), 2px 2px 4px rgba(0,0,0,0.8)',
                   letterSpacing: '-0.08em',
