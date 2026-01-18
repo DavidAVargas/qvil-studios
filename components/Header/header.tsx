@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/DarkLightMode/theme-toggle";
 import Image from "next/image";
+import Link from "next/link";
 
 export function Header() {
     return (
@@ -34,7 +35,7 @@ export function Header() {
             <div className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
                 
                 {/* Logo */}
-                <div className="flex items-center gap-3">
+                <Link href="/" className="flex items-center gap-3">
                     <Image
                         src="/images/qvils-og-nobg1.png"
                         alt="Qvil Studios"
@@ -43,38 +44,38 @@ export function Header() {
                         priority
                         className="h-8 w-auto dark:drop-shadow-[0_0_10px_rgba(220,38,38,0.3)]"
                     />
-                </div>
+                </Link>
 
                 {/* Navigation - theme aware */}
                 <nav className="flex items-center gap-10 text-sm tracking-widest uppercase">
-                    <a 
-                        href="/gallery" 
+                    <Link
+                        href="/archives"
                         className="text-black dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-all duration-300 relative group dark:[text-shadow:0_0_8px_rgba(220,38,38,0.2)]"
                     >
                         Archives
                         <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-800 dark:bg-red-800 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a 
-                        href="/events" 
+                    </Link>
+                    <Link
+                        href="/exhibition"
                         className="text-black dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-all duration-300 relative group dark:[text-shadow:0_0_8px_rgba(220,38,38,0.2)]"
                     >
                         Exhibition
                         <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-800 dark:bg-red-800 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a 
-                        href="/about" 
+                    </Link>
+                    <Link
+                        href="/about"
                         className="text-black dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-all duration-300 relative group dark:[text-shadow:0_0_8px_rgba(220,38,38,0.2)]"
                     >
                         About
                         <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-800 dark:bg-red-800 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a 
-                        href="/contact" 
+                    </Link>
+                    <Link
+                        href="/contact"
                         className="text-black dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-all duration-300 relative group dark:[text-shadow:0_0_8px_rgba(220,38,38,0.2)]"
                     >
                         Contact
                         <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-800 dark:bg-red-800 group-hover:w-full transition-all duration-300"></span>
-                    </a>
+                    </Link>
                 </nav>
                 
                 {/* Theme Toggle */}
