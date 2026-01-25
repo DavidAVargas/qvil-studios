@@ -12,8 +12,9 @@ export function generateStaticParams() {
 }
 
 // Generate metadata for each show
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const show = getRunwayShow(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const show = getRunwayShow(slug);
   if (!show) {
     return { title: "Not Found" };
   }
@@ -23,8 +24,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function RunwayShowPage({ params }: { params: { slug: string } }) {
-  const show = getRunwayShow(params.slug);
+export default async function RunwayShowPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const show = getRunwayShow(slug);
 
   if (!show) {
     notFound();
