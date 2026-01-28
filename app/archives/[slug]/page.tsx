@@ -1,20 +1,29 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRunwayShow, runwayShows } from "@/lib/runway-data";
+import { getRunwayShow, getRunwayShowSlugs } from "@/lib/payload";
+import { runwayShows } from "@/lib/runway-data";
 import { RunwayGallery } from "@/components/Archives/RunwayGallery";
+import { AdminEditButton, AdminDeleteButton } from "@/components/Admin";
 
 // Generate static params for all shows
-export function generateStaticParams() {
-  return runwayShows.map((show) => ({
-    slug: show.slug,
-  }));
+export async function generateStaticParams() {
+  // Try to get slugs from Payload, fallback to mock data
+  const payloadSlugs = await getRunwayShowSlugs();
+  if (payloadSlugs.length > 0) {
+    return payloadSlugs.map((slug) => ({ slug }));
+  }
+  return runwayShows.map((show) => ({ slug: show.slug }));
 }
 
 // Generate metadata for each show
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
-  const show = getRunwayShow(slug);
+  const show = await getRunwayShow(slug);
   if (!show) {
     return { title: "Not Found" };
   }
@@ -24,9 +33,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function RunwayShowPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function RunwayShowPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
-  const show = getRunwayShow(slug);
+  const show = await getRunwayShow(slug);
 
   if (!show) {
     notFound();
@@ -38,21 +51,43 @@ export default async function RunwayShowPage({ params }: { params: Promise<{ slu
       <div
         className="fixed inset-0 pointer-events-none opacity-30 dark:opacity-50"
         style={{
-          background: 'radial-gradient(ellipse at top, transparent 0%, rgba(0,0,0,0.4) 100%)',
+          background:
+            "radial-gradient(ellipse at top, transparent 0%, rgba(0,0,0,0.4) 100%)",
         }}
       />
 
       {/* Back link */}
-      <div className="relative px-4 sm:px-6 pt-6 sm:pt-8">
+      <div className="relative px-4 sm:px-6 pt-6 sm:pt-8 flex items-center justify-between">
         <Link
           href="/archives"
           className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M7 16l-4-4m0 0l4-4m-4 4h18"
+            />
           </svg>
           <span className="uppercase tracking-widest">Back</span>
         </Link>
+
+        {/* Admin Controls */}
+        <div className="flex items-center gap-2">
+          <AdminEditButton href={`/admin/runway-shows/${show.id}`} />
+          <AdminDeleteButton
+            collection="runway-shows"
+            id={show.id}
+            title={show.title}
+            redirectTo="/archives"
+          />
+        </div>
       </div>
 
       {/* Header */}

@@ -1,5 +1,6 @@
 "use client";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider, useTheme } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeToggle } from "@/components/DarkLightMode/theme-toggle";
@@ -13,16 +14,18 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!mounted) {
-    return <>{children}</>;
+    return <ClerkProvider>{children}</ClerkProvider>;
   }
   return (
-    <ThemeProvider enableSystem attribute="class" defaultTheme="system">
-      {children}
-      <ToasterProvider />
-      <div className="fixed right-6 bottom-6 z-50">
-        <ThemeToggle />
-      </div>
-    </ThemeProvider>
+    <ClerkProvider>
+      <ThemeProvider enableSystem attribute="class" defaultTheme="system">
+        {children}
+        <ToasterProvider />
+        <div className="fixed right-6 bottom-6 z-50">
+          <ThemeToggle />
+        </div>
+      </ThemeProvider>
+    </ClerkProvider>
   );
 }
 
