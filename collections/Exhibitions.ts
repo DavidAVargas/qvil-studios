@@ -12,6 +12,9 @@ export const Exhibitions: CollectionConfig = {
   },
   access: {
     read: () => true,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
   },
   fields: [
     {

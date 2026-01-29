@@ -12,12 +12,30 @@ export const Media: CollectionConfig = {
     update: () => true,
     delete: () => true,
   },
-  upload: true,
+  upload: {
+    staticDir: "public/media",
+    staticURL: "/media",
+    mimeTypes: ["image/*"],
+    imageSizes: [
+      {
+        name: "thumbnail",
+        width: 400,
+        height: 300,
+        position: "centre",
+      },
+      {
+        name: "card",
+        width: 768,
+        height: 1024,
+        position: "centre",
+      },
+    ],
+  },
   fields: [
     {
       name: "alt",
       type: "text",
-      required: true,
+      required: false,
     },
   ],
 };

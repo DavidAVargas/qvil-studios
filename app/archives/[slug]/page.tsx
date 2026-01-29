@@ -1,20 +1,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRunwayShow, getRunwayShowSlugs } from "@/lib/payload";
-import { runwayShows } from "@/lib/runway-data";
+import { getRunwayShow } from "@/lib/payload";
 import { RunwayGallery } from "@/components/Archives/RunwayGallery";
 import { AdminEditButton, AdminDeleteButton } from "@/components/Admin";
 
-// Generate static params for all shows
-export async function generateStaticParams() {
-  // Try to get slugs from Payload, fallback to mock data
-  const payloadSlugs = await getRunwayShowSlugs();
-  if (payloadSlugs.length > 0) {
-    return payloadSlugs.map((slug) => ({ slug }));
-  }
-  return runwayShows.map((show) => ({ slug: show.slug }));
-}
+// Use dynamic rendering so new shows work immediately
+export const dynamic = "force-dynamic";
 
 // Generate metadata for each show
 export async function generateMetadata({

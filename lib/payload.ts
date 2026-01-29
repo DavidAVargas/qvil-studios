@@ -7,8 +7,16 @@ import type { Exhibition } from "./exhibition-data";
 function getMediaUrl(media: unknown): string {
   if (!media) return "";
   if (typeof media === "string") return media;
-  if (typeof media === "object" && media !== null && "url" in media) {
-    return (media as { url: string }).url;
+  if (typeof media === "object" && media !== null) {
+    const mediaObj = media as { url?: string; filename?: string };
+    // If we have a URL, use it
+    if (mediaObj.url) {
+      return mediaObj.url;
+    }
+    // Fallback: construct URL from filename
+    if (mediaObj.filename) {
+      return `/media/${mediaObj.filename}`;
+    }
   }
   return "";
 }

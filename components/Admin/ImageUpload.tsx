@@ -1,7 +1,7 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { useState } from "react";
-import Image from "next/image";
 import { Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,7 +21,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("alt", file.name.replace(/\.[^/.]+$/, ""));
+    formData.append("_payload", JSON.stringify({ alt: file.name.replace(/\.[^/.]+$/, "") }));
 
     try {
       const res = await fetch("/api/media", {
@@ -32,7 +32,9 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
       if (!res.ok) throw new Error("Upload failed");
 
       const data = await res.json();
-      onChange(data.doc.url, data.doc.id);
+      // Construct URL from filename if url is not available
+      const url = data.doc.url || `/media/${data.doc.filename}`;
+      onChange(url, data.doc.id);
       toast.success("Image uploaded");
     } catch {
       toast.error("Failed to upload image");
@@ -46,7 +48,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
     return (
       <div className="relative inline-block">
         <div className="relative h-48 w-72 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
-          <Image src={value} alt="Cover" fill className="object-cover" />
+          <img src={value} alt="Cover" className="absolute inset-0 h-full w-full object-cover" />
         </div>
         <button
           type="button"

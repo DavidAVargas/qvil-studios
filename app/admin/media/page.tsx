@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import { Upload, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -53,7 +53,8 @@ export default function MediaPage() {
     for (const file of Array.from(files)) {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("alt", file.name.replace(/\.[^/.]+$/, ""));
+      // Payload expects _payload-[fieldName] format for additional fields
+      formData.append("_payload", JSON.stringify({ alt: file.name.replace(/\.[^/.]+$/, "") }));
 
       try {
         const res = await fetch("/api/media", {
@@ -61,7 +62,11 @@ export default function MediaPage() {
           body: formData,
         });
 
-        if (!res.ok) throw new Error("Upload failed");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          console.error("Upload error:", errorData);
+          throw new Error("Upload failed");
+        }
 
         toast.success(`Uploaded ${file.name}`);
       } catch {
@@ -153,11 +158,10 @@ export default function MediaPage() {
               onClick={() => setSelectedMedia(item)}
               className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900"
             >
-              <Image
+              <img
                 src={item.sizes?.thumbnail?.url || item.url}
-                alt={item.alt}
-                fill
-                className="object-cover transition-transform group-hover:scale-105"
+                alt={item.alt || ""}
+                className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
             </button>
@@ -177,11 +181,10 @@ export default function MediaPage() {
             </button>
 
             <div className="relative aspect-video w-full bg-gray-100 dark:bg-gray-800">
-              <Image
+              <img
                 src={selectedMedia.url}
-                alt={selectedMedia.alt}
-                fill
-                className="object-contain"
+                alt={selectedMedia.alt || ""}
+                className="absolute inset-0 h-full w-full object-contain"
               />
             </div>
 

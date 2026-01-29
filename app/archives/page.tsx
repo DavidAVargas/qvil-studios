@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 import { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { getRunwayShows } from "@/lib/payload";
 import { AdminEditButton } from "@/components/Admin/AdminEditButton";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Archives",
@@ -45,13 +47,10 @@ export default async function ArchivesPage() {
                 >
                   {/* Image Side - Much larger */}
                   <div className="relative w-full lg:w-[70%] aspect-[3/2] sm:aspect-[16/10] lg:aspect-auto lg:min-h-[500px] overflow-hidden">
-                    <Image
+                    <img
                       src={show.coverImage}
                       alt={show.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 1024px) 100vw, 70vw"
-                      priority={index === 0}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     {/* Subtle overlay */}
                     <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-500" />
