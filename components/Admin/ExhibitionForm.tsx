@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ImageUpload } from "./ImageUpload";
+import { MediaPicker } from "./MediaPicker";
 
 type ExhibitionFormProps = {
   initialData?: {
@@ -316,8 +316,9 @@ export function ExhibitionForm({ initialData }: ExhibitionFormProps) {
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Cover Image *
         </label>
-        <ImageUpload
+        <MediaPicker
           value={coverImageUrl}
+          mediaId={formData.coverImage}
           onChange={(url, id) => {
             setCoverImageUrl(url);
             setFormData((prev) => ({ ...prev, coverImage: id }));

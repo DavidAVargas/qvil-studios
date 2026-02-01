@@ -9,7 +9,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
   // First image is hero/full width, then alternating large/small
   const isHero = index === 0;
   const isFeature = index === 1 || index === 4;
-  const isLast = index === totalPhotos - 1;
+  const lookNumber = index + 1; // Use index for look number instead of photo.id
 
   if (isHero) {
     // Full width hero image
@@ -28,7 +28,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10" />
           {/* Look number */}
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6">
-            <span className="text-white/60 text-xs tracking-widest">LOOK {photo.id}</span>
+            <span className="text-white/60 text-xs tracking-widest">LOOK {lookNumber}</span>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
           {/* Look number */}
           <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="text-white/80 text-xs tracking-widest">LOOK {photo.id}</span>
+            <span className="text-white/80 text-xs tracking-widest">LOOK {lookNumber}</span>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
         {/* Look number */}
         <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="text-white/80 text-[10px] sm:text-xs tracking-widest">LOOK {photo.id}</span>
+          <span className="text-white/80 text-[10px] sm:text-xs tracking-widest">LOOK {lookNumber}</span>
         </div>
       </div>
     </div>

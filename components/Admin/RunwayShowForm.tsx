@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ImageUpload } from "./ImageUpload";
+import { MediaPicker } from "./MediaPicker";
+import { ThemePhotoPicker } from "./ThemePhotoPicker";
 
 type RunwayShowFormProps = {
   initialData?: {
@@ -16,7 +17,7 @@ type RunwayShowFormProps = {
     coverImage: { id: string; url: string } | string;
     themes?: Array<{
       name: string;
-      photos?: Array<{ id: string }>;
+      photos?: Array<{ id: string } | string>;
     }>;
   };
 };
@@ -25,7 +26,15 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    slug: string;
+    date: string;
+    year: number;
+    description: string;
+    coverImage: string;
+    themes: Array<{ name: string; photos: string[] }>;
+  }>({
     title: initialData?.title || "",
     slug: initialData?.slug || "",
     date: initialData?.date || "",
@@ -35,7 +44,10 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
       typeof initialData?.coverImage === "object"
         ? initialData.coverImage.id
         : initialData?.coverImage || "",
-    themes: initialData?.themes || [{ name: "", photos: [] }],
+    themes: (initialData?.themes || [{ name: "", photos: [] }]).map((t) => ({
+      name: t.name,
+      photos: (t.photos || []).map((p) => (typeof p === "object" ? p.id : p)),
+    })),
   });
 
   const [coverImageUrl, setCoverImageUrl] = useState(
@@ -62,7 +74,7 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
   function addTheme() {
     setFormData((prev) => ({
       ...prev,
-      themes: [...prev.themes, { name: "", photos: [] }],
+      themes: [...prev.themes, { name: "", photos: [] as string[] }],
     }));
   }
 
@@ -78,6 +90,15 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
       ...prev,
       themes: prev.themes.map((theme, i) =>
         i === index ? { ...theme, name } : theme
+      ),
+    }));
+  }
+
+  function updateThemePhotos(index: number, photoIds: string[]) {
+    setFormData((prev) => ({
+      ...prev,
+      themes: prev.themes.map((theme, i) =>
+        i === index ? { ...theme, photos: photoIds } : theme
       ),
     }));
   }
@@ -207,8 +228,9 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Cover Image *
         </label>
-        <ImageUpload
+        <MediaPicker
           value={coverImageUrl}
+          mediaId={formData.coverImage}
           onChange={(url, id) => {
             setCoverImageUrl(url);
             setFormData((prev) => ({ ...prev, coverImage: id }));
@@ -231,31 +253,44 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {formData.themes.map((theme, index) => (
-            <div key={index} className="flex items-center gap-4">
-              <input
-                type="text"
-                value={theme.name}
-                onChange={(e) => updateTheme(index, e.target.value)}
-                className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-red-900 focus:ring-red-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                placeholder="Theme name (e.g., Dune)"
-              />
-              {formData.themes.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeTheme(index)}
-                  className="text-sm text-red-600 hover:text-red-800"
-                >
-                  Remove
-                </button>
-              )}
+            <div
+              key={index}
+              className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+            >
+              <div className="mb-4 flex items-center gap-4">
+                <input
+                  type="text"
+                  value={theme.name}
+                  onChange={(e) => updateTheme(index, e.target.value)}
+                  className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-red-900 focus:ring-red-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  placeholder="Theme name (e.g., Dune)"
+                />
+                {formData.themes.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeTheme(index)}
+                    className="text-sm text-red-600 hover:text-red-800"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+
+              {/* Theme Photos */}
+              <div>
+                <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Photos for this theme
+                </label>
+                <ThemePhotoPicker
+                  selectedIds={theme.photos}
+                  onChange={(ids) => updateThemePhotos(index, ids)}
+                />
+              </div>
             </div>
           ))}
         </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          Photos can be added to themes after creating the show
-        </p>
       </div>
 
       {/* Actions */}

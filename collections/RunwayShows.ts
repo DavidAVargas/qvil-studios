@@ -72,8 +72,11 @@ export const RunwayShows: CollectionConfig = {
         {
           name: "photos",
           type: "relationship",
-          relationTo: "runway-photos",
+          relationTo: "media",
           hasMany: true,
+          admin: {
+            description: "Select photos from the media library",
+          },
         },
       ],
     },

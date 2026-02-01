@@ -3,15 +3,22 @@ import config from "@payload-config";
 import { notFound } from "next/navigation";
 import { ExhibitionForm } from "@/components/Admin/ExhibitionForm";
 
-// Helper to get media URL and ID
+// Helper to get media URL and ID (handles UploadThing _key)
 function getMediaInfo(media: unknown): { id: string; url: string } {
   if (!media) return { id: "", url: "" };
   if (typeof media === "string") return { id: media, url: "" };
   if (typeof media === "object" && media !== null) {
-    const m = media as { id?: string | number; url?: string };
+    const m = media as { id?: string | number; url?: string; _key?: string };
+    // Construct UploadThing URL from _key if available
+    let url = "";
+    if (m._key) {
+      url = `https://utfs.io/f/${m._key}`;
+    } else if (m.url && !m.url.includes("localhost")) {
+      url = m.url;
+    }
     return {
       id: String(m.id || ""),
-      url: (m.url as string) || "",
+      url,
     };
   }
   return { id: "", url: "" };

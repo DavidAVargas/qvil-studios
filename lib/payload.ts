@@ -53,20 +53,21 @@ export async function getRunwayShowsFromPayload(): Promise<RunwayShow[]> {
         (theme, index): RunwayTheme => ({
           id: `${doc.slug}-theme-${index}`,
           name: theme.name || "",
-          photos: ((theme.photos as Array<{
-            id?: string | number;
-            image?: unknown;
-            alt?: string;
-            width?: number;
-            height?: number;
-          }>) || []).map((photo, photoIndex): RunwayPhoto => {
-            const photoDoc = typeof photo === "object" ? photo : null;
+          photos: ((theme.photos || []) as unknown[]).map((photo, photoIndex): RunwayPhoto => {
+            // Photos are now direct media relationships
+            const photoUrl = getMediaUrl(photo);
+            const photoId = typeof photo === "object" && photo !== null
+              ? (photo as { id?: string | number }).id
+              : null;
+            const photoAlt = typeof photo === "object" && photo !== null
+              ? (photo as { alt?: string }).alt
+              : null;
             return {
-              id: photoDoc?.id ? toStringId(photoDoc.id) : `${doc.slug}-photo-${photoIndex}`,
-              src: photoDoc ? getMediaUrl(photoDoc.image) : "",
-              alt: (photoDoc?.alt as string) || `Photo ${photoIndex + 1}`,
-              width: (photoDoc?.width as number) || 3,
-              height: (photoDoc?.height as number) || 4,
+              id: photoId ? toStringId(photoId) : `${doc.slug}-photo-${photoIndex}`,
+              src: photoUrl,
+              alt: photoAlt || `Photo ${photoIndex + 1}`,
+              width: 3,
+              height: 4,
             };
           }),
         })
@@ -110,20 +111,21 @@ export async function getRunwayShowFromPayload(
         (theme, index): RunwayTheme => ({
           id: `${doc.slug}-theme-${index}`,
           name: theme.name || "",
-          photos: ((theme.photos as Array<{
-            id?: string | number;
-            image?: unknown;
-            alt?: string;
-            width?: number;
-            height?: number;
-          }>) || []).map((photo, photoIndex): RunwayPhoto => {
-            const photoDoc = typeof photo === "object" ? photo : null;
+          photos: ((theme.photos || []) as unknown[]).map((photo, photoIndex): RunwayPhoto => {
+            // Photos are now direct media relationships
+            const photoUrl = getMediaUrl(photo);
+            const photoId = typeof photo === "object" && photo !== null
+              ? (photo as { id?: string | number }).id
+              : null;
+            const photoAlt = typeof photo === "object" && photo !== null
+              ? (photo as { alt?: string }).alt
+              : null;
             return {
-              id: photoDoc?.id ? toStringId(photoDoc.id) : `${doc.slug}-photo-${photoIndex}`,
-              src: photoDoc ? getMediaUrl(photoDoc.image) : "",
-              alt: (photoDoc?.alt as string) || `Photo ${photoIndex + 1}`,
-              width: (photoDoc?.width as number) || 3,
-              height: (photoDoc?.height as number) || 4,
+              id: photoId ? toStringId(photoId) : `${doc.slug}-photo-${photoIndex}`,
+              src: photoUrl,
+              alt: photoAlt || `Photo ${photoIndex + 1}`,
+              width: 3,
+              height: 4,
             };
           }),
         })
