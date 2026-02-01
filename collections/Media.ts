@@ -13,8 +13,6 @@ export const Media: CollectionConfig = {
     delete: () => true,
   },
   upload: {
-    staticDir: "public/media",
-    staticURL: "/media",
     mimeTypes: ["image/*"],
     imageSizes: [
       {

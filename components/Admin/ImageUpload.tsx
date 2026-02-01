@@ -32,8 +32,13 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
       if (!res.ok) throw new Error("Upload failed");
 
       const data = await res.json();
-      // Construct URL from filename if url is not available
-      const url = data.doc.url || `/media/${data.doc.filename}`;
+      // Use UploadThing URL from _key, or fallback
+      let url = data.doc.url;
+      if (data.doc._key) {
+        url = `https://utfs.io/f/${data.doc._key}`;
+      } else if (!url || url.includes("localhost")) {
+        url = `/media/${data.doc.filename}`;
+      }
       onChange(url, data.doc.id);
       toast.success("Image uploaded");
     } catch {

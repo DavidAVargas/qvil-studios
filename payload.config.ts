@@ -4,7 +4,7 @@ import { buildConfig } from "payload";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import sharp from "sharp";
-// import { uploadthingStorage } from "@payloadcms/storage-uploadthing";
+import { uploadthingStorage } from "@payloadcms/storage-uploadthing";
 
 import { Media } from "./collections/Media";
 import { RunwayShows } from "./collections/RunwayShows";
@@ -40,15 +40,14 @@ export default buildConfig({
   editor: lexicalEditor(),
   sharp,
   plugins: [
-    // TODO: Fix UploadThing integration
-    // uploadthingStorage({
-    //   collections: {
-    //     media: true,
-    //   },
-    //   options: {
-    //     token: process.env.UPLOADTHING_TOKEN,
-    //     acl: "public-read",
-    //   },
-    // }),
+    uploadthingStorage({
+      collections: {
+        media: true,
+      },
+      options: {
+        token: process.env.UPLOADTHING_TOKEN,
+        acl: "public-read",
+      },
+    }),
   ],
 });

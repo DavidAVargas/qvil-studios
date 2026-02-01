@@ -3,17 +3,21 @@ import config from "@payload-config";
 import type { RunwayShow, RunwayPhoto, RunwayTheme } from "./runway-data";
 import type { Exhibition } from "./exhibition-data";
 
-// Helper to get media URL
+// Helper to get media URL - handles UploadThing cloud storage
 function getMediaUrl(media: unknown): string {
   if (!media) return "";
   if (typeof media === "string") return media;
   if (typeof media === "object" && media !== null) {
-    const mediaObj = media as { url?: string; filename?: string };
-    // If we have a URL, use it
-    if (mediaObj.url) {
+    const mediaObj = media as { url?: string; filename?: string; _key?: string };
+    // If we have an UploadThing key, construct the cloud URL
+    if (mediaObj._key) {
+      return `https://utfs.io/f/${mediaObj._key}`;
+    }
+    // If we have a URL that's not localhost, use it
+    if (mediaObj.url && !mediaObj.url.includes("localhost")) {
       return mediaObj.url;
     }
-    // Fallback: construct URL from filename
+    // Fallback: construct URL from filename (for local dev)
     if (mediaObj.filename) {
       return `/media/${mediaObj.filename}`;
     }
@@ -78,6 +82,7 @@ export async function getRunwayShowFromPayload(
   slug: string
 ): Promise<RunwayShow | null> {
   try {
+    console.log("[getRunwayShowFromPayload] Querying for slug:", slug);
     const payload = await getPayload({ config });
 
     const result = await payload.find({
@@ -89,6 +94,7 @@ export async function getRunwayShowFromPayload(
       limit: 1,
     });
 
+    console.log("[getRunwayShowFromPayload] Found docs:", result.docs.length);
     if (result.docs.length === 0) return null;
 
     const doc = result.docs[0];
@@ -274,10 +280,16 @@ export async function getRunwayShows(): Promise<RunwayShow[]> {
 export async function getRunwayShow(
   slug: string
 ): Promise<RunwayShow | undefined> {
-  const show = await getRunwayShowFromPayload(slug);
+  // Decode URL-encoded slug (e.g., "dark%20emo" -> "dark emo")
+  const decodedSlug = decodeURIComponent(slug);
+  console.log("[getRunwayShow] Looking for slug:", decodedSlug);
+  const show = await getRunwayShowFromPayload(decodedSlug);
+  console.log("[getRunwayShow] Payload result:", show ? "found" : "not found");
   if (show) return show;
   // Fallback to mock data
-  return getMockRunwayShow(slug);
+  const mockShow = getMockRunwayShow(decodedSlug);
+  console.log("[getRunwayShow] Mock result:", mockShow ? "found" : "not found");
+  return mockShow;
 }
 
 export async function getUpcomingExhibition(): Promise<Exhibition | undefined> {

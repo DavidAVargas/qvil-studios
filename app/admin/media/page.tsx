@@ -15,12 +15,24 @@ type MediaItem = {
   width: number;
   height: number;
   createdAt: string;
+  _key?: string;
   sizes?: {
-    thumbnail?: { url: string };
-    card?: { url: string };
-    hero?: { url: string };
+    thumbnail?: { url: string; _key?: string };
+    card?: { url: string; _key?: string };
+    hero?: { url: string; _key?: string };
   };
 };
+
+// Helper to get the correct URL (UploadThing cloud or fallback)
+function getImageUrl(item: { url?: string; _key?: string }): string {
+  if (item._key) {
+    return `https://utfs.io/f/${item._key}`;
+  }
+  if (item.url && !item.url.includes("localhost")) {
+    return item.url;
+  }
+  return item.url || "";
+}
 
 export default function MediaPage() {
   const [media, setMedia] = useState<MediaItem[]>([]);
@@ -36,6 +48,7 @@ export default function MediaPage() {
     try {
       const res = await fetch("/api/media?limit=100&sort=-createdAt");
       const data = await res.json();
+      console.log("Media API response:", JSON.stringify(data.docs?.[0], null, 2));
       setMedia(data.docs || []);
     } catch {
       toast.error("Failed to load media");
@@ -159,7 +172,7 @@ export default function MediaPage() {
               className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900"
             >
               <img
-                src={item.sizes?.thumbnail?.url || item.url}
+                src={getImageUrl(item.sizes?.thumbnail || item)}
                 alt={item.alt || ""}
                 className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
               />
@@ -182,7 +195,7 @@ export default function MediaPage() {
 
             <div className="relative aspect-video w-full bg-gray-100 dark:bg-gray-800">
               <img
-                src={selectedMedia.url}
+                src={getImageUrl(selectedMedia)}
                 alt={selectedMedia.alt || ""}
                 className="absolute inset-0 h-full w-full object-contain"
               />
@@ -228,7 +241,7 @@ export default function MediaPage() {
               <div className="mt-6 flex items-center gap-4">
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(selectedMedia.url);
+                    navigator.clipboard.writeText(getImageUrl(selectedMedia));
                     toast.success("URL copied to clipboard");
                   }}
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
