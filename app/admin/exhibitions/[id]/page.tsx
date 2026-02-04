@@ -41,6 +41,7 @@ async function getExhibition(id: string) {
       address?: string;
       city?: string;
       description?: string;
+      link?: string;
     } | null;
 
     return {
@@ -55,6 +56,7 @@ async function getExhibition(id: string) {
         address: venue?.address || "",
         city: venue?.city || "",
         description: venue?.description || "",
+        link: venue?.link || "",
       },
       description: exhibition.description as string,
       coverImage: coverImage.url ? coverImage : coverImage.id,

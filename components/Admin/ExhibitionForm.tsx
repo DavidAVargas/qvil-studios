@@ -18,6 +18,7 @@ type ExhibitionFormProps = {
       address: string;
       city: string;
       description: string;
+      link?: string;
     };
     description: string;
     coverImage: { id: string; url: string } | string;
@@ -40,6 +41,7 @@ export function ExhibitionForm({ initialData }: ExhibitionFormProps) {
       address: "",
       city: "",
       description: "",
+      link: "",
     },
     description: initialData?.description || "",
     coverImage:
@@ -289,6 +291,24 @@ export function ExhibitionForm({ initialData }: ExhibitionFormProps) {
               rows={3}
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-red-900 focus:ring-red-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               placeholder="Describe the venue..."
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Venue Website
+            </label>
+            <input
+              type="url"
+              value={formData.venue.link || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  venue: { ...prev.venue, link: e.target.value },
+                }))
+              }
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-red-900 focus:ring-red-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              placeholder="e.g., https://theglasshouse.com"
             />
           </div>
         </div>

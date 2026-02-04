@@ -6,3 +6,5 @@ export { MediaPicker } from "./MediaPicker";
 export { ThemePhotoPicker } from "./ThemePhotoPicker";
 export { RunwayShowForm } from "./RunwayShowForm";
 export { ExhibitionForm } from "./ExhibitionForm";
+export { UpcomingToggle } from "./UpcomingToggle";
+export { SurpriseNote } from "./SurpriseNote";

@@ -76,6 +76,13 @@ export const Exhibitions: CollectionConfig = {
           type: "textarea",
           required: true,
         },
+        {
+          name: "link",
+          type: "text",
+          admin: {
+            description: "Website URL for the venue (optional)",
+          },
+        },
       ],
     },
     {

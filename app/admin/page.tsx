@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPayload } from "payload";
 import config from "@payload-config";
+import { SurpriseNote } from "@/components/Admin/SurpriseNote";
 
 async function getStats() {
   const payload = await getPayload({ config });
@@ -44,6 +45,9 @@ export default async function AdminDashboard() {
 
   return (
     <div>
+      {/* Surprise message for the owner */}
+      <SurpriseNote />
+
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           Dashboard

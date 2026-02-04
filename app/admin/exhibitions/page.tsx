@@ -3,6 +3,7 @@ import { getPayload } from "payload";
 import config from "@payload-config";
 import { Plus, Pencil } from "lucide-react";
 import { DeleteButton } from "@/components/Admin/DeleteButton";
+import { UpcomingToggle } from "@/components/Admin/UpcomingToggle";
 
 async function getExhibitions() {
   const payload = await getPayload({ config });
@@ -95,15 +96,19 @@ export default async function ExhibitionsPage() {
                     {exhibition.date}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    {exhibition.isUpcoming ? (
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                        Upcoming
+                    <div className="flex items-center gap-3">
+                      <UpcomingToggle
+                        id={String(exhibition.id)}
+                        isUpcoming={Boolean(exhibition.isUpcoming)}
+                      />
+                      <span className={`text-xs font-medium ${
+                        exhibition.isUpcoming
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-gray-500 dark:text-gray-400"
+                      }`}>
+                        {exhibition.isUpcoming ? "Upcoming" : "Past"}
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400">
-                        Past
-                      </span>
-                    )}
+                    </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                     <div className="flex items-center justify-end gap-2">

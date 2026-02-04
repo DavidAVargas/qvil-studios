@@ -25,7 +25,7 @@ export default async function ExhibitionPage() {
       />
 
       {/* LIVE / Upcoming Event Hero Section */}
-      {upcomingEvent && (
+      {upcomingEvent ? (
         <section className="relative group">
           {/* Dark overlay for dramatic effect */}
           <div className="absolute inset-0 bg-black/60 dark:bg-black/70 z-10" />
@@ -149,9 +149,24 @@ export default async function ExhibitionPage() {
 
               {/* Venue Description */}
               <div className="bg-black/40 backdrop-blur-sm border border-white/10 p-4 sm:p-6 max-w-2xl">
-                <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">
-                  About the Venue
-                </p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs uppercase tracking-widest text-gray-500">
+                    About the Venue
+                  </p>
+                  {upcomingEvent.venue.link && (
+                    <a
+                      href={upcomingEvent.venue.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      Visit Website
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  )}
+                </div>
                 <p className="text-sm text-gray-400 font-light leading-relaxed">
                   {upcomingEvent.venue.description}
                 </p>
@@ -161,6 +176,23 @@ export default async function ExhibitionPage() {
 
           {/* Bottom fade */}
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-[#0a0a0a] to-transparent z-20" />
+        </section>
+      ) : (
+        /* No Upcoming Event - Display placeholder */
+        <section className="relative px-4 sm:px-6 py-16 sm:py-24 lg:py-32 border-b border-gray-200 dark:border-red-900/20">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 mb-6 sm:mb-8">
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-widest">
+                Stay Tuned
+              </span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-light text-gray-900 dark:text-white tracking-tight mb-6">
+              No Upcoming Events
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 font-light leading-relaxed max-w-2xl mx-auto">
+              We&apos;re currently planning our next exhibition. Check back soon for updates on upcoming events and runway shows.
+            </p>
+          </div>
         </section>
       )}
 
@@ -260,9 +292,24 @@ export default async function ExhibitionPage() {
 
                   {/* Venue Info - Expandable on hover */}
                   <div className="border-t border-gray-200 dark:border-red-900/20 pt-4 mt-4">
-                    <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">
-                      Venue Partner
-                    </p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs uppercase tracking-widest text-gray-500">
+                        Venue Partner
+                      </p>
+                      {event.venue.link && (
+                        <a
+                          href={event.venue.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-red-700 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+                        >
+                          Visit
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 dark:text-gray-500 font-light leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
                       {event.venue.description}
                     </p>

@@ -176,6 +176,7 @@ export async function getExhibitionsFromPayload(): Promise<Exhibition[]> {
         address: ((doc.venue as { address?: string })?.address as string) || "",
         city: ((doc.venue as { city?: string })?.city as string) || "",
         description: ((doc.venue as { description?: string })?.description as string) || "",
+        link: ((doc.venue as { link?: string })?.link as string) || "",
       },
       description: doc.description as string,
       coverImage: getMediaUrl(doc.coverImage),
@@ -215,6 +216,7 @@ export async function getUpcomingExhibitionFromPayload(): Promise<Exhibition | n
         address: ((doc.venue as { address?: string })?.address as string) || "",
         city: ((doc.venue as { city?: string })?.city as string) || "",
         description: ((doc.venue as { description?: string })?.description as string) || "",
+        link: ((doc.venue as { link?: string })?.link as string) || "",
       },
       description: doc.description as string,
       coverImage: getMediaUrl(doc.coverImage),
@@ -251,6 +253,7 @@ export async function getPastExhibitionsFromPayload(): Promise<Exhibition[]> {
         address: ((doc.venue as { address?: string })?.address as string) || "",
         city: ((doc.venue as { city?: string })?.city as string) || "",
         description: ((doc.venue as { description?: string })?.description as string) || "",
+        link: ((doc.venue as { link?: string })?.link as string) || "",
       },
       description: doc.description as string,
       coverImage: getMediaUrl(doc.coverImage),
@@ -295,15 +298,24 @@ export async function getRunwayShow(
 }
 
 export async function getUpcomingExhibition(): Promise<Exhibition | undefined> {
-  const exhibition = await getUpcomingExhibitionFromPayload();
-  if (exhibition) return exhibition;
-  // Fallback to mock data
+  // First check if there are ANY exhibitions in the CMS
+  const allExhibitions = await getExhibitionsFromPayload();
+  if (allExhibitions.length > 0) {
+    // CMS has exhibitions - only return upcoming from CMS (may be undefined)
+    const exhibition = await getUpcomingExhibitionFromPayload();
+    return exhibition || undefined;
+  }
+  // No exhibitions in CMS - fallback to mock data
   return getMockUpcomingExhibition();
 }
 
 export async function getPastExhibitions(): Promise<Exhibition[]> {
-  const exhibitions = await getPastExhibitionsFromPayload();
-  if (exhibitions.length > 0) return exhibitions;
-  // Fallback to mock data
+  // First check if there are ANY exhibitions in the CMS
+  const allExhibitions = await getExhibitionsFromPayload();
+  if (allExhibitions.length > 0) {
+    // CMS has exhibitions - return past from CMS
+    return getPastExhibitionsFromPayload();
+  }
+  // No exhibitions in CMS - fallback to mock data
   return getMockPastExhibitions();
 }

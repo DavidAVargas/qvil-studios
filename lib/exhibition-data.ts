@@ -10,6 +10,7 @@ export type Exhibition = {
     address: string;
     city: string;
     description: string;
+    link?: string;
   };
   description: string;
   coverImage: string;
