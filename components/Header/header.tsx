@@ -4,15 +4,30 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const pathname = usePathname();
+    const { isSignedIn } = useAuth();
 
     // Close menu when route changes
     useEffect(() => {
         setMobileMenuOpen(false);
     }, [pathname]);
+
+    // Check admin status
+    useEffect(() => {
+        if (isSignedIn) {
+            fetch("/api/check-admin")
+                .then((res) => res.json())
+                .then((data) => setIsAdmin(data.isAdmin))
+                .catch(() => setIsAdmin(false));
+        } else {
+            setIsAdmin(false);
+        }
+    }, [isSignedIn]);
 
     // Prevent scroll when menu is open
     useEffect(() => {
@@ -93,6 +108,15 @@ export function Header() {
                             Contact
                             <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-800 dark:bg-red-800 group-hover:w-full transition-all duration-300"></span>
                         </Link>
+                        {isAdmin && (
+                            <Link
+                                href="/admin"
+                                className="text-red-700 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-all duration-300 relative group font-medium"
+                            >
+                                Admin
+                                <span className="absolute bottom-0 left-0 w-0 h-px bg-red-700 dark:bg-red-500 group-hover:w-full transition-all duration-300"></span>
+                            </Link>
+                        )}
                     </nav>
 
                     {/* Spacer for desktop to balance logo */}
@@ -189,6 +213,17 @@ export function Header() {
                         >
                             Contact
                         </Link>
+                        {isAdmin && (
+                            <Link
+                                href="/admin"
+                                className={`text-2xl uppercase tracking-[0.3em] text-red-700 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-all duration-300 transform font-medium ${
+                                    mobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                                }`}
+                                style={{ transitionDelay: '350ms' }}
+                            >
+                                Admin
+                            </Link>
+                        )}
                     </div>
 
                     {/* Decorative line */}
