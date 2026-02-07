@@ -10,6 +10,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
   const isHero = index === 0;
   const isFeature = index === 1 || index === 4;
   const lookNumber = index + 1; // Use index for look number instead of photo.id
+  const isAboveFold = index < 5; // Prioritize first 5 images
 
   if (isHero) {
     // Full width hero image
@@ -46,6 +47,8 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
             fill
             className="object-cover transition-all duration-700 group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 100vw, 50vw"
+            priority={isAboveFold}
+            loading={isAboveFold ? "eager" : "lazy"}
           />
           {/* Subtle overlay on hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
@@ -68,6 +71,8 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
           fill
           className="object-cover transition-all duration-700 group-hover:scale-[1.03]"
           sizes="(max-width: 640px) 50vw, 33vw"
+          priority={isAboveFold}
+          loading={isAboveFold ? "eager" : "lazy"}
         />
         {/* Subtle overlay on hover */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
