@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 /* eslint-disable @next/next/no-img-element */
 import { Upload, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
+import imageCompression from "browser-image-compression";
 
 type MediaItem = {
   id: string;
@@ -62,14 +63,36 @@ export default function MediaPage() {
     if (!files?.length) return;
 
     setUploading(true);
+    let totalSaved = 0;
+    let totalOriginal = 0;
+
+    const compressionOptions = {
+      maxSizeMB: 0.5, // Max 500KB
+      maxWidthOrHeight: 2000, // Max 2000px
+      useWebWorker: true,
+      fileType: "image/webp" as const,
+      initialQuality: 0.85,
+    };
 
     for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-      // Payload expects _payload-[fieldName] format for additional fields
-      formData.append("_payload", JSON.stringify({ alt: file.name.replace(/\.[^/.]+$/, "") }));
-
       try {
+        // Compress the image
+        toast.info(`Compressing ${file.name}...`);
+        const originalSize = file.size;
+        totalOriginal += originalSize;
+
+        const compressedFile = await imageCompression(file, compressionOptions);
+        const compressedSize = compressedFile.size;
+        totalSaved += (originalSize - compressedSize);
+
+        // Create a new file with proper extension
+        const newFileName = file.name.replace(/\.[^/.]+$/, ".webp");
+        const finalFile = new File([compressedFile], newFileName, { type: "image/webp" });
+
+        const formData = new FormData();
+        formData.append("file", finalFile);
+        formData.append("_payload", JSON.stringify({ alt: file.name.replace(/\.[^/.]+$/, "") }));
+
         const res = await fetch("/api/media", {
           method: "POST",
           body: formData,
@@ -81,10 +104,17 @@ export default function MediaPage() {
           throw new Error("Upload failed");
         }
 
-        toast.success(`Uploaded ${file.name}`);
+        const savings = Math.round((1 - compressedSize / originalSize) * 100);
+        toast.success(`Uploaded ${file.name} (${savings}% smaller)`);
       } catch {
         toast.error(`Failed to upload ${file.name}`);
       }
+    }
+
+    // Show total savings summary
+    if (files.length > 1) {
+      const savedMB = (totalSaved / 1024 / 1024).toFixed(2);
+      toast.success(`Total saved: ${savedMB}MB across ${files.length} images`);
     }
 
     setUploading(false);

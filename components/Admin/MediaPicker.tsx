@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { Upload, X, Check } from "lucide-react";
 import { toast } from "sonner";
+import imageCompression from "browser-image-compression";
 
 type MediaItem = {
   id: string;
@@ -64,11 +65,30 @@ export function MediaPicker({ value, mediaId, onChange }: MediaPickerProps) {
 
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("_payload", JSON.stringify({ alt: file.name.replace(/\.[^/.]+$/, "") }));
-
     try {
+      // Compress image before upload
+      const originalSize = file.size;
+      const options = {
+        maxSizeMB: 0.5, // Max 500KB
+        maxWidthOrHeight: 2000, // Max 2000px
+        useWebWorker: true,
+        fileType: "image/webp" as const, // Convert to WebP for better compression
+        initialQuality: 0.85, // 85% quality
+      };
+
+      toast.info("Compressing image...");
+      const compressedFile = await imageCompression(file, options);
+      const compressedSize = compressedFile.size;
+      const savings = Math.round((1 - compressedSize / originalSize) * 100);
+
+      // Create a new file with proper extension
+      const newFileName = file.name.replace(/\.[^/.]+$/, ".webp");
+      const finalFile = new File([compressedFile], newFileName, { type: "image/webp" });
+
+      const formData = new FormData();
+      formData.append("file", finalFile);
+      formData.append("_payload", JSON.stringify({ alt: file.name.replace(/\.[^/.]+$/, "") }));
+
       const res = await fetch("/api/media", {
         method: "POST",
         body: formData,
@@ -83,7 +103,11 @@ export function MediaPicker({ value, mediaId, onChange }: MediaPickerProps) {
 
       onChange(url, data.doc.id);
       setIsOpen(false);
-      toast.success("Image uploaded");
+
+      // Show compression results
+      const originalMB = (originalSize / 1024 / 1024).toFixed(2);
+      const compressedKB = (compressedSize / 1024).toFixed(0);
+      toast.success(`Uploaded! Compressed ${originalMB}MB → ${compressedKB}KB (${savings}% smaller)`);
     } catch {
       toast.error("Failed to upload image");
     } finally {
