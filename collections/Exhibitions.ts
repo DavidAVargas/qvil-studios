@@ -105,5 +105,13 @@ export const Exhibitions: CollectionConfig = {
         description: "Check if this is an upcoming event (only one should be checked)",
       },
     },
+    {
+      name: "relatedRunwayShow",
+      type: "relationship",
+      relationTo: "runway-shows",
+      admin: {
+        description: "Link to the runway show from this exhibition (for past events)",
+      },
+    },
   ],
 };

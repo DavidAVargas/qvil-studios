@@ -164,24 +164,28 @@ export async function getExhibitionsFromPayload(): Promise<Exhibition[]> {
       depth: 2,
     });
 
-    return result.docs.map((doc) => ({
-      id: toStringId(doc.id),
-      slug: doc.slug as string,
-      title: doc.title as string,
-      date: doc.date as string,
-      time: doc.time as string,
-      year: doc.year as number,
-      venue: {
-        name: ((doc.venue as { name?: string })?.name as string) || "",
-        address: ((doc.venue as { address?: string })?.address as string) || "",
-        city: ((doc.venue as { city?: string })?.city as string) || "",
-        description: ((doc.venue as { description?: string })?.description as string) || "",
-        link: ((doc.venue as { link?: string })?.link as string) || "",
-      },
-      description: doc.description as string,
-      coverImage: getMediaUrl(doc.coverImage),
-      isUpcoming: (doc.isUpcoming as boolean) || false,
-    }));
+    return result.docs.map((doc) => {
+      const relatedShow = doc.relatedRunwayShow as { slug?: string } | null;
+      return {
+        id: toStringId(doc.id),
+        slug: doc.slug as string,
+        title: doc.title as string,
+        date: doc.date as string,
+        time: doc.time as string,
+        year: doc.year as number,
+        venue: {
+          name: ((doc.venue as { name?: string })?.name as string) || "",
+          address: ((doc.venue as { address?: string })?.address as string) || "",
+          city: ((doc.venue as { city?: string })?.city as string) || "",
+          description: ((doc.venue as { description?: string })?.description as string) || "",
+          link: ((doc.venue as { link?: string })?.link as string) || "",
+        },
+        description: doc.description as string,
+        coverImage: getMediaUrl(doc.coverImage),
+        isUpcoming: (doc.isUpcoming as boolean) || false,
+        relatedRunwayShowSlug: relatedShow?.slug || undefined,
+      };
+    });
   } catch (error) {
     console.error("Error fetching exhibitions from Payload:", error);
     return [];
@@ -204,6 +208,7 @@ export async function getUpcomingExhibitionFromPayload(): Promise<Exhibition | n
     if (result.docs.length === 0) return null;
 
     const doc = result.docs[0];
+    const relatedShow = doc.relatedRunwayShow as { slug?: string } | null;
     return {
       id: toStringId(doc.id),
       slug: doc.slug as string,
@@ -221,6 +226,7 @@ export async function getUpcomingExhibitionFromPayload(): Promise<Exhibition | n
       description: doc.description as string,
       coverImage: getMediaUrl(doc.coverImage),
       isUpcoming: true,
+      relatedRunwayShowSlug: relatedShow?.slug || undefined,
     };
   } catch (error) {
     console.error("Error fetching upcoming exhibition:", error);
@@ -241,24 +247,28 @@ export async function getPastExhibitionsFromPayload(): Promise<Exhibition[]> {
       depth: 2,
     });
 
-    return result.docs.map((doc) => ({
-      id: toStringId(doc.id),
-      slug: doc.slug as string,
-      title: doc.title as string,
-      date: doc.date as string,
-      time: doc.time as string,
-      year: doc.year as number,
-      venue: {
-        name: ((doc.venue as { name?: string })?.name as string) || "",
-        address: ((doc.venue as { address?: string })?.address as string) || "",
-        city: ((doc.venue as { city?: string })?.city as string) || "",
-        description: ((doc.venue as { description?: string })?.description as string) || "",
-        link: ((doc.venue as { link?: string })?.link as string) || "",
-      },
-      description: doc.description as string,
-      coverImage: getMediaUrl(doc.coverImage),
-      isUpcoming: false,
-    }));
+    return result.docs.map((doc) => {
+      const relatedShow = doc.relatedRunwayShow as { slug?: string } | null;
+      return {
+        id: toStringId(doc.id),
+        slug: doc.slug as string,
+        title: doc.title as string,
+        date: doc.date as string,
+        time: doc.time as string,
+        year: doc.year as number,
+        venue: {
+          name: ((doc.venue as { name?: string })?.name as string) || "",
+          address: ((doc.venue as { address?: string })?.address as string) || "",
+          city: ((doc.venue as { city?: string })?.city as string) || "",
+          description: ((doc.venue as { description?: string })?.description as string) || "",
+          link: ((doc.venue as { link?: string })?.link as string) || "",
+        },
+        description: doc.description as string,
+        coverImage: getMediaUrl(doc.coverImage),
+        isUpcoming: false,
+        relatedRunwayShowSlug: relatedShow?.slug || undefined,
+      };
+    });
   } catch (error) {
     console.error("Error fetching past exhibitions:", error);
     return [];

@@ -1,7 +1,9 @@
 import { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { getUpcomingExhibition, getPastExhibitions } from "@/lib/payload";
 import { AdminEditButton } from "@/components/Admin/AdminEditButton";
+import { VenueLink } from "@/components/VenueLink";
 
 export const metadata: Metadata = {
   title: "Exhibition",
@@ -210,16 +212,16 @@ export default async function ExhibitionPage() {
       <section className="relative px-4 sm:px-6 py-12 sm:py-16">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {pastEvents.map((event) => (
-              <div
-                key={event.id}
-                className="group relative bg-gray-50 dark:bg-black border border-gray-200 dark:border-red-900/20 overflow-hidden"
-              >
-                {/* Admin Edit Button */}
-                <AdminEditButton
-                  href={`/admin/exhibitions/${event.id}`}
-                  className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
-                />
+            {pastEvents.map((event) => {
+              const hasRelatedShow = !!event.relatedRunwayShowSlug;
+
+              const cardContent = (
+                <>
+                  {/* Admin Edit Button */}
+                  <AdminEditButton
+                    href={`/admin/exhibitions/${event.id}`}
+                    className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
 
                 {/* Image */}
                 <div className="relative aspect-[16/10] overflow-hidden">
@@ -297,17 +299,15 @@ export default async function ExhibitionPage() {
                         Venue Partner
                       </p>
                       {event.venue.link && (
-                        <a
+                        <VenueLink
                           href={event.venue.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-red-700 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 hover:text-white hover:bg-red-700 dark:hover:bg-red-600 border border-red-700/30 dark:border-red-400/30 hover:border-red-700 dark:hover:border-red-600 rounded transition-all"
                         >
                           Visit
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
-                        </a>
+                        </VenueLink>
                       )}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-500 font-light leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
@@ -315,14 +315,54 @@ export default async function ExhibitionPage() {
                     </p>
                   </div>
 
+                  {/* View Collection Button - only if has related show */}
+                  {hasRelatedShow && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-red-900/20">
+                      <span className="inline-flex items-center gap-2 text-sm text-red-700 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300 transition-colors">
+                        View Collection
+                        <svg
+                          className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  )}
+
                   {/* Corner accents on hover */}
                   <div className="absolute bottom-0 right-0 w-16 h-16 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <div className="absolute bottom-4 right-4 w-8 h-px bg-gray-900 dark:bg-red-700" />
                     <div className="absolute bottom-4 right-4 w-px h-8 bg-gray-900 dark:bg-red-700" />
                   </div>
                 </div>
-              </div>
-            ))}
+                </>
+              );
+
+              return hasRelatedShow ? (
+                <Link
+                  key={event.id}
+                  href={`/archives/${event.relatedRunwayShowSlug}`}
+                  className="group relative bg-gray-50 dark:bg-black border border-gray-200 dark:border-red-900/20 overflow-hidden cursor-pointer block"
+                >
+                  {cardContent}
+                </Link>
+              ) : (
+                <div
+                  key={event.id}
+                  className="group relative bg-gray-50 dark:bg-black border border-gray-200 dark:border-red-900/20 overflow-hidden"
+                >
+                  {cardContent}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

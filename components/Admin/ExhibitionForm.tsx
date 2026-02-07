@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MediaPicker } from "./MediaPicker";
+
+type RunwayShowOption = {
+  id: string;
+  title: string;
+  slug: string;
+};
 
 type ExhibitionFormProps = {
   initialData?: {
@@ -23,12 +29,14 @@ type ExhibitionFormProps = {
     description: string;
     coverImage: { id: string; url: string } | string;
     isUpcoming: boolean;
+    relatedRunwayShow?: string;
   };
 };
 
 export function ExhibitionForm({ initialData }: ExhibitionFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [runwayShows, setRunwayShows] = useState<RunwayShowOption[]>([]);
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -49,6 +57,7 @@ export function ExhibitionForm({ initialData }: ExhibitionFormProps) {
         ? initialData.coverImage.id
         : initialData?.coverImage || "",
     isUpcoming: initialData?.isUpcoming || false,
+    relatedRunwayShow: initialData?.relatedRunwayShow || "",
   });
 
   const [coverImageUrl, setCoverImageUrl] = useState(
@@ -56,6 +65,26 @@ export function ExhibitionForm({ initialData }: ExhibitionFormProps) {
       ? initialData.coverImage.url
       : ""
   );
+
+  // Fetch runway shows for the dropdown
+  useEffect(() => {
+    async function fetchRunwayShows() {
+      try {
+        const res = await fetch("/api/runway-shows?limit=100");
+        const data = await res.json();
+        setRunwayShows(
+          (data.docs || []).map((show: { id: string; title: string; slug: string }) => ({
+            id: show.id,
+            title: show.title,
+            slug: show.slug,
+          }))
+        );
+      } catch {
+        // Silently fail
+      }
+    }
+    fetchRunwayShows();
+  }, []);
 
   function generateSlug(title: string) {
     return title
@@ -344,6 +373,30 @@ export function ExhibitionForm({ initialData }: ExhibitionFormProps) {
             setFormData((prev) => ({ ...prev, coverImage: id }));
           }}
         />
+      </div>
+
+      {/* Related Runway Show */}
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Related Runway Show
+        </label>
+        <select
+          value={formData.relatedRunwayShow}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, relatedRunwayShow: e.target.value }))
+          }
+          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-red-900 focus:ring-red-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+        >
+          <option value="">No linked runway show</option>
+          {runwayShows.map((show) => (
+            <option key={show.id} value={show.id}>
+              {show.title}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Link this exhibition to a runway show (for past events, visitors can click to view the collection)
+        </p>
       </div>
 
       {/* Actions */}

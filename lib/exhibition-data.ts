@@ -15,6 +15,7 @@ export type Exhibition = {
   description: string;
   coverImage: string;
   isUpcoming: boolean;
+  relatedRunwayShowSlug?: string;
 };
 
 export const exhibitions: Exhibition[] = [

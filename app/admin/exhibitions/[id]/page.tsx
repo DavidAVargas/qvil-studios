@@ -44,6 +44,11 @@ async function getExhibition(id: string) {
       link?: string;
     } | null;
 
+    const relatedShow = exhibition.relatedRunwayShow as { id?: string } | string | null;
+    const relatedRunwayShowId = typeof relatedShow === "object"
+      ? String(relatedShow?.id || "")
+      : String(relatedShow || "");
+
     return {
       id: String(exhibition.id),
       title: exhibition.title as string,
@@ -61,6 +66,7 @@ async function getExhibition(id: string) {
       description: exhibition.description as string,
       coverImage: coverImage.url ? coverImage : coverImage.id,
       isUpcoming: (exhibition.isUpcoming as boolean) || false,
+      relatedRunwayShow: relatedRunwayShowId,
     };
   } catch {
     return null;
