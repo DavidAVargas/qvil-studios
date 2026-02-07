@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -181,18 +182,20 @@ export function Hero() {
 
           {/* CTA Buttons - darker emo style */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-12">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-red-950 text-white hover:bg-red-900 px-12 py-8 text-lg font-semibold rounded-none border-2 border-red-800/50 uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.4)]"
+              asChild
             >
-              View Work
+              <Link href="/archives">View Work</Link>
             </Button>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               variant="outline"
               className="border-2 border-red-900/50 text-red-900 hover:bg-red-950/30 hover:text-white hover:border-red-800/70 px-12 py-8 text-lg font-semibold rounded-none uppercase tracking-widest transition-all duration-300"
+              asChild
             >
-              Contact
+              <Link href="/contact">Contact</Link>
             </Button>
           </div>
         </div>

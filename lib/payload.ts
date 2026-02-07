@@ -56,18 +56,19 @@ export async function getRunwayShowsFromPayload(): Promise<RunwayShow[]> {
           photos: ((theme.photos || []) as unknown[]).map((photo, photoIndex): RunwayPhoto => {
             // Photos are now direct media relationships
             const photoUrl = getMediaUrl(photo);
-            const photoId = typeof photo === "object" && photo !== null
-              ? (photo as { id?: string | number }).id
-              : null;
-            const photoAlt = typeof photo === "object" && photo !== null
-              ? (photo as { alt?: string }).alt
-              : null;
+            const photoObj = photo as { id?: string | number; alt?: string; focalX?: number; focalY?: number } | null;
+            const photoId = photoObj?.id ?? null;
+            const photoAlt = photoObj?.alt ?? null;
+            const focalX = photoObj?.focalX ?? 50;
+            const focalY = photoObj?.focalY ?? 50;
             return {
               id: photoId ? toStringId(photoId) : `${doc.slug}-photo-${photoIndex}`,
               src: photoUrl,
               alt: photoAlt || `Photo ${photoIndex + 1}`,
               width: 3,
               height: 4,
+              focalX,
+              focalY,
             };
           }),
         })
@@ -114,18 +115,19 @@ export async function getRunwayShowFromPayload(
           photos: ((theme.photos || []) as unknown[]).map((photo, photoIndex): RunwayPhoto => {
             // Photos are now direct media relationships
             const photoUrl = getMediaUrl(photo);
-            const photoId = typeof photo === "object" && photo !== null
-              ? (photo as { id?: string | number }).id
-              : null;
-            const photoAlt = typeof photo === "object" && photo !== null
-              ? (photo as { alt?: string }).alt
-              : null;
+            const photoObj = photo as { id?: string | number; alt?: string; focalX?: number; focalY?: number } | null;
+            const photoId = photoObj?.id ?? null;
+            const photoAlt = photoObj?.alt ?? null;
+            const focalX = photoObj?.focalX ?? 50;
+            const focalY = photoObj?.focalY ?? 50;
             return {
               id: photoId ? toStringId(photoId) : `${doc.slug}-photo-${photoIndex}`,
               src: photoUrl,
               alt: photoAlt || `Photo ${photoIndex + 1}`,
               width: 3,
               height: 4,
+              focalX,
+              focalY,
             };
           }),
         })

@@ -1,16 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useAuth } from "@clerk/nextjs";
+import { Move } from "lucide-react";
 import type { RunwayShow, RunwayPhoto } from "@/lib/runway-data";
+import { FocalPointEditor } from "@/components/Admin/FocalPointEditor";
 
-function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: number; totalPhotos: number }) {
+type PhotoCardProps = {
+  photo: RunwayPhoto;
+  index: number;
+  totalPhotos: number;
+  isAdmin: boolean;
+  onEditFocalPoint: (photo: RunwayPhoto) => void;
+};
+
+function PhotoCard({ photo, index, totalPhotos, isAdmin, onEditFocalPoint }: PhotoCardProps) {
   // Create a more dramatic, editorial layout
   // First image is hero/full width, then alternating large/small
   const isHero = index === 0;
   const isFeature = index === 1 || index === 4;
   const lookNumber = index + 1; // Use index for look number instead of photo.id
   const isAboveFold = index < 5; // Prioritize first 5 images
+
+  const focalPosition = `${photo.focalX ?? 50}% ${photo.focalY ?? 50}%`;
 
   if (isHero) {
     // Full width hero image
@@ -22,6 +35,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
             alt={photo.alt}
             fill
             className="object-cover transition-all duration-700 group-hover:scale-[1.02]"
+            style={{ objectPosition: focalPosition }}
             sizes="100vw"
             priority
           />
@@ -31,6 +45,16 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6">
             <span className="text-white/60 text-xs tracking-widest">LOOK {lookNumber}</span>
           </div>
+          {/* Admin focal point button */}
+          {isAdmin && (
+            <button
+              onClick={() => onEditFocalPoint(photo)}
+              className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/80"
+              title="Set focal point"
+            >
+              <Move className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -46,6 +70,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
             alt={photo.alt}
             fill
             className="object-cover transition-all duration-700 group-hover:scale-[1.03]"
+            style={{ objectPosition: focalPosition }}
             sizes="(max-width: 640px) 100vw, 50vw"
             priority={isAboveFold}
             loading={isAboveFold ? "eager" : "lazy"}
@@ -56,6 +81,16 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
           <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span className="text-white/80 text-xs tracking-widest">LOOK {lookNumber}</span>
           </div>
+          {/* Admin focal point button */}
+          {isAdmin && (
+            <button
+              onClick={() => onEditFocalPoint(photo)}
+              className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/80"
+              title="Set focal point"
+            >
+              <Move className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -70,6 +105,7 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
           alt={photo.alt}
           fill
           className="object-cover transition-all duration-700 group-hover:scale-[1.03]"
+          style={{ objectPosition: focalPosition }}
           sizes="(max-width: 640px) 50vw, 33vw"
           priority={isAboveFold}
           loading={isAboveFold ? "eager" : "lazy"}
@@ -80,6 +116,16 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
         <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <span className="text-white/80 text-[10px] sm:text-xs tracking-widest">LOOK {lookNumber}</span>
         </div>
+        {/* Admin focal point button */}
+        {isAdmin && (
+          <button
+            onClick={() => onEditFocalPoint(photo)}
+            className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/80"
+            title="Set focal point"
+          >
+            <Move className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   );
@@ -87,7 +133,27 @@ function PhotoCard({ photo, index, totalPhotos }: { photo: RunwayPhoto; index: n
 
 export function RunwayGallery({ show }: { show: RunwayShow }) {
   const [activeTheme, setActiveTheme] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState<RunwayPhoto | null>(null);
+  const { isSignedIn } = useAuth();
   const currentTheme = show.themes[activeTheme];
+
+  useEffect(() => {
+    if (isSignedIn) {
+      fetch("/api/check-admin")
+        .then((res) => res.json())
+        .then((data) => setIsAdmin(data.isAdmin))
+        .catch(() => setIsAdmin(false));
+    } else {
+      setIsAdmin(false);
+    }
+  }, [isSignedIn]);
+
+  function handleFocalPointSave(x: number, y: number) {
+    // Update the photo in the local state (the page will need to be refreshed for full sync)
+    // The FocalPointEditor already saves to the API
+    setEditingPhoto(null);
+  }
 
   return (
     <>
@@ -126,6 +192,8 @@ export function RunwayGallery({ show }: { show: RunwayShow }) {
                 photo={photo}
                 index={index}
                 totalPhotos={currentTheme.photos.length}
+                isAdmin={isAdmin}
+                onEditFocalPoint={setEditingPhoto}
               />
             ))}
           </div>
@@ -138,6 +206,18 @@ export function RunwayGallery({ show }: { show: RunwayShow }) {
           </span>
         </div>
       </section>
+
+      {/* Focal Point Editor Modal */}
+      {editingPhoto && (
+        <FocalPointEditor
+          mediaId={editingPhoto.id}
+          imageUrl={editingPhoto.src}
+          initialX={editingPhoto.focalX ?? 50}
+          initialY={editingPhoto.focalY ?? 50}
+          onClose={() => setEditingPhoto(null)}
+          onSave={handleFocalPointSave}
+        />
+      )}
     </>
   );
 }

@@ -35,5 +35,21 @@ export const Media: CollectionConfig = {
       type: "text",
       required: false,
     },
+    {
+      name: "focalX",
+      type: "number",
+      defaultValue: 50,
+      admin: {
+        description: "Horizontal focal point (0-100%, 50 = center)",
+      },
+    },
+    {
+      name: "focalY",
+      type: "number",
+      defaultValue: 50,
+      admin: {
+        description: "Vertical focal point (0-100%, 50 = center)",
+      },
+    },
   ],
 };

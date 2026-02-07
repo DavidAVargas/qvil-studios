@@ -4,6 +4,8 @@ export type RunwayPhoto = {
   alt: string;
   width: number;
   height: number;
+  focalX?: number;
+  focalY?: number;
 };
 
 export type RunwayTheme = {
