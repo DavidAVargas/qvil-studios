@@ -106,8 +106,8 @@ export function FocalPointEditor({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="relative w-full max-w-4xl overflow-hidden rounded-lg bg-gray-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overflow-y-auto">
+      <div className="relative w-full max-w-3xl my-4 rounded-lg bg-gray-900">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-800 p-4">
           <div className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export function FocalPointEditor({
         <div className="relative p-4">
           <div
             ref={containerRef}
-            className="relative cursor-crosshair overflow-hidden rounded-lg"
+            className="relative cursor-crosshair overflow-hidden rounded-lg max-h-[50vh]"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -142,7 +142,7 @@ export function FocalPointEditor({
             <img
               src={imageUrl}
               alt="Set focal point"
-              className="w-full select-none"
+              className="w-full max-h-[50vh] object-contain select-none"
               draggable={false}
             />
 

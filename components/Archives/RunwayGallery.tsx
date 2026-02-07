@@ -49,7 +49,7 @@ function PhotoCard({ photo, index, totalPhotos, isAdmin, onEditFocalPoint }: Pho
           {isAdmin && (
             <button
               onClick={() => onEditFocalPoint(photo)}
-              className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/80"
+              className="absolute top-3 right-3 z-10 rounded-full bg-black/70 p-2 text-white sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-black/90"
               title="Set focal point"
             >
               <Move className="h-4 w-4" />
@@ -85,7 +85,7 @@ function PhotoCard({ photo, index, totalPhotos, isAdmin, onEditFocalPoint }: Pho
           {isAdmin && (
             <button
               onClick={() => onEditFocalPoint(photo)}
-              className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/80"
+              className="absolute top-3 right-3 z-10 rounded-full bg-black/70 p-2 text-white sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-black/90"
               title="Set focal point"
             >
               <Move className="h-4 w-4" />
@@ -120,7 +120,7 @@ function PhotoCard({ photo, index, totalPhotos, isAdmin, onEditFocalPoint }: Pho
         {isAdmin && (
           <button
             onClick={() => onEditFocalPoint(photo)}
-            className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/80"
+            className="absolute top-3 right-3 z-10 rounded-full bg-black/70 p-2 text-white sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-black/90"
             title="Set focal point"
           >
             <Move className="h-4 w-4" />
