@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { Move } from "lucide-react";
 import type { RunwayShow, RunwayPhoto } from "@/lib/runway-data";
 import { FocalPointEditor } from "@/components/Admin/FocalPointEditor";
@@ -12,10 +13,11 @@ type PhotoCardProps = {
   index: number;
   totalPhotos: number;
   isAdmin: boolean;
+  focalOverride?: { x: number; y: number };
   onEditFocalPoint: (photo: RunwayPhoto) => void;
 };
 
-function PhotoCard({ photo, index, totalPhotos, isAdmin, onEditFocalPoint }: PhotoCardProps) {
+function PhotoCard({ photo, index, totalPhotos, isAdmin, focalOverride, onEditFocalPoint }: PhotoCardProps) {
   // Create a more dramatic, editorial layout
   // First image is hero/full width, then alternating large/small
   const isHero = index === 0;
@@ -23,7 +25,9 @@ function PhotoCard({ photo, index, totalPhotos, isAdmin, onEditFocalPoint }: Pho
   const lookNumber = index + 1; // Use index for look number instead of photo.id
   const isAboveFold = index < 5; // Prioritize first 5 images
 
-  const focalPosition = `${photo.focalX ?? 50}% ${photo.focalY ?? 50}%`;
+  const focalX = focalOverride?.x ?? photo.focalX ?? 50;
+  const focalY = focalOverride?.y ?? photo.focalY ?? 50;
+  const focalPosition = `${focalX}% ${focalY}%`;
 
   if (isHero) {
     // Full width hero image
@@ -135,7 +139,9 @@ export function RunwayGallery({ show }: { show: RunwayShow }) {
   const [activeTheme, setActiveTheme] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState<RunwayPhoto | null>(null);
+  const [focalOverrides, setFocalOverrides] = useState<Record<string, { x: number; y: number }>>({});
   const { isSignedIn } = useAuth();
+  const router = useRouter();
   const currentTheme = show.themes[activeTheme];
 
   useEffect(() => {
@@ -150,9 +156,11 @@ export function RunwayGallery({ show }: { show: RunwayShow }) {
   }, [isSignedIn]);
 
   function handleFocalPointSave(x: number, y: number) {
-    // Update the photo in the local state (the page will need to be refreshed for full sync)
-    // The FocalPointEditor already saves to the API
+    if (editingPhoto) {
+      setFocalOverrides((prev) => ({ ...prev, [editingPhoto.id]: { x, y } }));
+    }
     setEditingPhoto(null);
+    router.refresh();
   }
 
   return (
@@ -193,6 +201,7 @@ export function RunwayGallery({ show }: { show: RunwayShow }) {
                 index={index}
                 totalPhotos={currentTheme.photos.length}
                 isAdmin={isAdmin}
+                focalOverride={focalOverrides[photo.id]}
                 onEditFocalPoint={setEditingPhoto}
               />
             ))}

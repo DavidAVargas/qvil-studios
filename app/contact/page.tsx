@@ -38,7 +38,7 @@ export default function ContactPage() {
               href="mailto:hello@qvilstudios.com"
               className="text-2xl sm:text-3xl md:text-4xl font-light text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
-              hello@qvilstudios.com
+              contact@qvilstudios.com
             </a>
           </div>
 
@@ -51,7 +51,7 @@ export default function ContactPage() {
               href="mailto:press@qvilstudios.com"
               className="text-2xl sm:text-3xl md:text-4xl font-light text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
-              press@qvilstudios.com
+              media@qvilstudios.com
             </a>
           </div>
 
