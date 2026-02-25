@@ -22,6 +22,9 @@ export type RunwayShow = {
   year: number;
   description: string;
   coverImage: string;
+  coverImageId?: string;
+  coverImageFocalX?: number;
+  coverImageFocalY?: number;
   themes: RunwayTheme[];
 };
 

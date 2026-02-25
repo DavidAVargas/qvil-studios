@@ -41,7 +41,9 @@ export async function getRunwayShowsFromPayload(): Promise<RunwayShow[]> {
       depth: 3,
     });
 
-    return result.docs.map((doc) => ({
+    return result.docs.map((doc) => {
+      const coverObj = doc.coverImage as { id?: string | number; focalX?: number; focalY?: number } | null;
+      return {
       id: toStringId(doc.id),
       slug: doc.slug as string,
       title: doc.title as string,
@@ -49,6 +51,9 @@ export async function getRunwayShowsFromPayload(): Promise<RunwayShow[]> {
       year: doc.year as number,
       description: doc.description as string,
       coverImage: getMediaUrl(doc.coverImage),
+      coverImageId: coverObj?.id ? toStringId(coverObj.id) : undefined,
+      coverImageFocalX: coverObj?.focalX ?? 50,
+      coverImageFocalY: coverObj?.focalY ?? 50,
       themes: ((doc.themes as Array<{ name?: string; photos?: unknown[] }>) || []).map(
         (theme, index): RunwayTheme => ({
           id: `${doc.slug}-theme-${index}`,
@@ -73,7 +78,8 @@ export async function getRunwayShowsFromPayload(): Promise<RunwayShow[]> {
           }),
         })
       ),
-    }));
+    };
+    });
   } catch (error) {
     console.error("Error fetching runway shows from Payload:", error);
     return [];
