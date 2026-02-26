@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { MediaPicker } from "./MediaPicker";
 import { ThemePhotoPicker } from "./ThemePhotoPicker";
 
+type ThemePhoto = { id: string; orientation: "horizontal" | "vertical" };
+
 type RunwayShowFormProps = {
   initialData?: {
     id: string;
@@ -17,7 +19,7 @@ type RunwayShowFormProps = {
     coverImage: { id: string; url: string } | string;
     themes?: Array<{
       name: string;
-      photos?: Array<{ id: string } | string>;
+      photos?: Array<{ id: string; orientation?: "horizontal" | "vertical" } | string>;
     }>;
   };
 };
@@ -33,7 +35,7 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
     year: number;
     description: string;
     coverImage: string;
-    themes: Array<{ name: string; photos: string[] }>;
+    themes: Array<{ name: string; photos: ThemePhoto[] }>;
   }>({
     title: initialData?.title || "",
     slug: initialData?.slug || "",
@@ -46,7 +48,11 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
         : initialData?.coverImage || "",
     themes: (initialData?.themes || [{ name: "", photos: [] }]).map((t) => ({
       name: t.name,
-      photos: (t.photos || []).map((p) => (typeof p === "object" ? p.id : p)),
+      photos: (t.photos || []).map((p) =>
+        typeof p === "object"
+          ? { id: p.id, orientation: p.orientation || "vertical" }
+          : { id: p, orientation: "vertical" as const }
+      ),
     })),
   });
 
@@ -74,7 +80,7 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
   function addTheme() {
     setFormData((prev) => ({
       ...prev,
-      themes: [...prev.themes, { name: "", photos: [] as string[] }],
+      themes: [...prev.themes, { name: "", photos: [] }],
     }));
   }
 
@@ -94,11 +100,11 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
     }));
   }
 
-  function updateThemePhotos(index: number, photoIds: string[]) {
+  function updateThemePhotos(index: number, photos: ThemePhoto[]) {
     setFormData((prev) => ({
       ...prev,
       themes: prev.themes.map((theme, i) =>
-        i === index ? { ...theme, photos: photoIds } : theme
+        i === index ? { ...theme, photos } : theme
       ),
     }));
   }
@@ -116,7 +122,13 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          themes: formData.themes.map((t) => ({
+            name: t.name,
+            photos: t.photos.map((p) => ({ photo: p.id, orientation: p.orientation })),
+          })),
+        }),
       });
 
       if (!res.ok) {
@@ -126,7 +138,6 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
 
       toast.success(initialData ? "Show updated" : "Show created");
       router.push("/admin/runway-shows");
-      router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
     } finally {
@@ -284,8 +295,8 @@ export function RunwayShowForm({ initialData }: RunwayShowFormProps) {
                   Photos for this theme
                 </label>
                 <ThemePhotoPicker
-                  selectedIds={theme.photos}
-                  onChange={(ids) => updateThemePhotos(index, ids)}
+                  selectedPhotos={theme.photos}
+                  onChange={(photos) => updateThemePhotos(index, photos)}
                 />
               </div>
             </div>

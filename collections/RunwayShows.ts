@@ -71,12 +71,28 @@ export const RunwayShows: CollectionConfig = {
         },
         {
           name: "photos",
-          type: "relationship",
-          relationTo: "media",
-          hasMany: true,
+          type: "array",
+          label: "Photos",
           admin: {
-            description: "Select photos from the media library",
+            description: "Add photos and set each one as horizontal or vertical",
           },
+          fields: [
+            {
+              name: "photo",
+              type: "relationship",
+              relationTo: "media",
+              required: true,
+            },
+            {
+              name: "orientation",
+              type: "select",
+              defaultValue: "vertical",
+              options: [
+                { label: "Vertical (Portrait)", value: "vertical" },
+                { label: "Horizontal (Landscape)", value: "horizontal" },
+              ],
+            },
+          ],
         },
       ],
     },

@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Upload, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
@@ -61,16 +61,9 @@ export function MediaPicker({ value, mediaId, onChange }: MediaPickerProps) {
   async function fetchMedia() {
     setLoading(true);
     try {
-      const allDocs: MediaItem[] = [];
-      let page = 1;
-      let hasMore = true;
-      while (hasMore) {
-        const res = await fetch(`/api/media?limit=100&sort=-createdAt&page=${page}`);
-        const data = await res.json();
-        allDocs.push(...(data.docs || []));
-        hasMore = data.hasNextPage ?? false;
-        page++;
-      }
+      const res = await fetch(`/api/media?limit=500&sort=-createdAt`);
+      const data = await res.json();
+      const allDocs: MediaItem[] = data.docs || [];
       setMedia(allDocs);
       // Auto-select most recent year + quarter
       const grouped = groupByYearQuarter(allDocs);
@@ -89,7 +82,7 @@ export function MediaPicker({ value, mediaId, onChange }: MediaPickerProps) {
   }
 
   useEffect(() => {
-    if (isOpen) fetchMedia();
+    if (isOpen && media.length === 0) fetchMedia();
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -136,13 +129,16 @@ export function MediaPicker({ value, mediaId, onChange }: MediaPickerProps) {
     setIsOpen(false);
   }
 
-  const grouped = groupByYearQuarter(media);
-  const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
-  const quartersForYear = selectedYear
-    ? QUARTER_LABELS.filter((q) => grouped[selectedYear]?.[q]?.length > 0)
-    : [];
-  const visibleItems =
-    selectedYear && selectedQuarter ? (grouped[selectedYear]?.[selectedQuarter] ?? []) : [];
+  const grouped = useMemo(() => groupByYearQuarter(media), [media]);
+  const years = useMemo(() => Object.keys(grouped).sort((a, b) => Number(b) - Number(a)), [grouped]);
+  const quartersForYear = useMemo(
+    () => selectedYear ? QUARTER_LABELS.filter((q) => grouped[selectedYear]?.[q]?.length > 0) : [],
+    [grouped, selectedYear]
+  );
+  const visibleItems = useMemo(
+    () => selectedYear && selectedQuarter ? (grouped[selectedYear]?.[selectedQuarter] ?? []) : [],
+    [grouped, selectedYear, selectedQuarter]
+  );
 
   if (value) {
     return (

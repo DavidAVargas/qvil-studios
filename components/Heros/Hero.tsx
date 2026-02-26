@@ -83,11 +83,22 @@ export function Hero() {
         onTouchMove={editing && dragging ? updateFromEvent : undefined}
         onTouchEnd={editing ? () => setDragging(false) : undefined}
       >
+        {/* Desktop image */}
         <Image
           src="/images/hero2.png"
           alt="Hero background"
           fill
-          className="object-cover"
+          className="object-cover hidden md:block"
+          style={{ objectPosition: "50% 50%" }}
+          priority
+          draggable={false}
+        />
+        {/* Mobile image */}
+        <Image
+          src="/images/mobile-2.png"
+          alt="Hero background"
+          fill
+          className="object-cover block md:hidden"
           style={{ objectPosition }}
           priority
           draggable={false}

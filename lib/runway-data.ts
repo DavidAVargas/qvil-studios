@@ -6,6 +6,7 @@ export type RunwayPhoto = {
   height: number;
   focalX?: number;
   focalY?: number;
+  orientation?: "horizontal" | "vertical";
 };
 
 export type RunwayTheme = {

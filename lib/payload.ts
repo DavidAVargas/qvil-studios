@@ -58,9 +58,16 @@ export async function getRunwayShowsFromPayload(): Promise<RunwayShow[]> {
         (theme, index): RunwayTheme => ({
           id: `${doc.slug}-theme-${index}`,
           name: theme.name || "",
-          photos: ((theme.photos || []) as unknown[]).map((photo, photoIndex): RunwayPhoto => {
-            // Photos are now direct media relationships
+          photos: ((theme.photos || []) as unknown[]).map((item, photoIndex): RunwayPhoto | null => {
+            const photoItem = item as { photo?: unknown; orientation?: string; id?: string | number; url?: string } | null;
+            // Handle both new format {photo, orientation} and old format (direct media object)
+            const isNewFormat = photoItem?.photo !== undefined;
+            const photo = isNewFormat ? photoItem?.photo : item;
+            const orientation = isNewFormat
+              ? ((photoItem?.orientation as "horizontal" | "vertical") || "vertical")
+              : "vertical";
             const photoUrl = getMediaUrl(photo);
+            if (!photoUrl) return null;
             const photoObj = photo as { id?: string | number; alt?: string; focalX?: number; focalY?: number } | null;
             const photoId = photoObj?.id ?? null;
             const photoAlt = photoObj?.alt ?? null;
@@ -74,8 +81,9 @@ export async function getRunwayShowsFromPayload(): Promise<RunwayShow[]> {
               height: 4,
               focalX,
               focalY,
+              orientation,
             };
-          }),
+          }).filter(Boolean) as RunwayPhoto[],
         })
       ),
     };
@@ -118,9 +126,15 @@ export async function getRunwayShowFromPayload(
         (theme, index): RunwayTheme => ({
           id: `${doc.slug}-theme-${index}`,
           name: theme.name || "",
-          photos: ((theme.photos || []) as unknown[]).map((photo, photoIndex): RunwayPhoto => {
-            // Photos are now direct media relationships
+          photos: ((theme.photos || []) as unknown[]).map((item, photoIndex): RunwayPhoto | null => {
+            const photoItem = item as { photo?: unknown; orientation?: string; id?: string | number; url?: string } | null;
+            const isNewFormat = photoItem?.photo !== undefined;
+            const photo = isNewFormat ? photoItem?.photo : item;
+            const orientation = isNewFormat
+              ? ((photoItem?.orientation as "horizontal" | "vertical") || "vertical")
+              : "vertical";
             const photoUrl = getMediaUrl(photo);
+            if (!photoUrl) return null;
             const photoObj = photo as { id?: string | number; alt?: string; focalX?: number; focalY?: number } | null;
             const photoId = photoObj?.id ?? null;
             const photoAlt = photoObj?.alt ?? null;
@@ -134,8 +148,9 @@ export async function getRunwayShowFromPayload(
               height: 4,
               focalX,
               focalY,
+              orientation,
             };
-          }),
+          }).filter(Boolean) as RunwayPhoto[],
         })
       ),
     };

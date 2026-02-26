@@ -1,9 +1,11 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Plus, X, Check, GripVertical } from "lucide-react";
 import { toast } from "sonner";
+
+type ThemePhoto = { id: string; orientation: "horizontal" | "vertical" };
 
 type MediaItem = {
   id: string;
@@ -18,8 +20,8 @@ type MediaItem = {
 };
 
 type ThemePhotoPickerProps = {
-  selectedIds: string[];
-  onChange: (ids: string[]) => void;
+  selectedPhotos: ThemePhoto[];
+  onChange: (photos: ThemePhoto[]) => void;
 };
 
 const QUARTER_LABELS = ["Jan – Mar", "Apr – Jun", "Jul – Sep", "Oct – Dec"];
@@ -49,32 +51,27 @@ function getImageUrl(item: { url?: string; _key?: string }): string {
   return item.url || "";
 }
 
-export function ThemePhotoPicker({ selectedIds, onChange }: ThemePhotoPickerProps) {
+export function ThemePhotoPicker({ selectedPhotos, onChange }: ThemePhotoPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [allMedia, setAllMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [localSelection, setLocalSelection] = useState<string[]>(selectedIds);
+  const [localSelection, setLocalSelection] = useState<ThemePhoto[]>(selectedPhotos);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const draggedItemRef = useRef<string | null>(null);
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedQuarter, setSelectedQuarter] = useState("");
 
+  // Derive selected IDs for checking selection in modal
+  const selectedIds = selectedPhotos.map((p) => p.id);
+
   async function fetchAllMedia() {
     setLoading(true);
     try {
-      const docs: MediaItem[] = [];
-      let page = 1;
-      let hasMore = true;
-      while (hasMore) {
-        const res = await fetch(`/api/media?limit=100&sort=-createdAt&page=${page}`);
-        const data = await res.json();
-        docs.push(...(data.docs || []));
-        hasMore = data.hasNextPage ?? false;
-        page++;
-      }
+      const res = await fetch(`/api/media?limit=500&sort=-createdAt`);
+      const data = await res.json();
+      const docs: MediaItem[] = data.docs || [];
       setAllMedia(docs);
-      // Auto-select most recent year + quarter
       const grouped = groupByYearQuarter(docs);
       const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
       if (years.length > 0) {
@@ -90,24 +87,20 @@ export function ThemePhotoPicker({ selectedIds, onChange }: ThemePhotoPickerProp
     }
   }
 
-  // Fetch all media on mount so preview thumbnails are always available
   useEffect(() => {
-    fetchAllMedia();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (isOpen && allMedia.length === 0) fetchAllMedia();
+    if (isOpen) setLocalSelection(selectedPhotos);
+  }, [isOpen, selectedPhotos]);
 
-  // Sync local selection when modal opens
-  useEffect(() => {
-    if (isOpen) setLocalSelection(selectedIds);
-  }, [isOpen, selectedIds]);
-
-  // Derive selected media from allMedia (preserving selectedIds order)
-  const selectedMedia = selectedIds
-    .map((id) => allMedia.find((m) => m.id === id))
-    .filter(Boolean) as MediaItem[];
+  const selectedMedia = selectedPhotos
+    .map((p) => ({ ...p, media: allMedia.find((m) => m.id === p.id) }))
+    .filter((p) => p.media) as Array<ThemePhoto & { media: MediaItem }>;
 
   function toggleSelection(id: string) {
     setLocalSelection((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.find((p) => p.id === id)
+        ? prev.filter((p) => p.id !== id)
+        : [...prev, { id, orientation: "vertical" }]
     );
   }
 
@@ -140,7 +133,7 @@ export function ThemePhotoPicker({ selectedIds, onChange }: ThemePhotoPickerProp
       setDragOverIndex(null);
       return;
     }
-    const newOrder = [...selectedIds];
+    const newOrder = [...selectedPhotos];
     const [draggedItem] = newOrder.splice(draggedIndex, 1);
     newOrder.splice(dropIndex, 0, draggedItem);
     onChange(newOrder);
@@ -154,59 +147,114 @@ export function ThemePhotoPicker({ selectedIds, onChange }: ThemePhotoPickerProp
     draggedItemRef.current = null;
   }
 
-  const grouped = groupByYearQuarter(allMedia);
-  const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
-  const quartersForYear = selectedYear
-    ? QUARTER_LABELS.filter((q) => grouped[selectedYear]?.[q]?.length > 0)
-    : [];
-  const visibleItems =
-    selectedYear && selectedQuarter ? (grouped[selectedYear]?.[selectedQuarter] ?? []) : [];
+  const grouped = useMemo(() => groupByYearQuarter(allMedia), [allMedia]);
+  const years = useMemo(() => Object.keys(grouped).sort((a, b) => Number(b) - Number(a)), [grouped]);
+  const quartersForYear = useMemo(
+    () => selectedYear ? QUARTER_LABELS.filter((q) => grouped[selectedYear]?.[q]?.length > 0) : [],
+    [grouped, selectedYear]
+  );
+  const visibleItems = useMemo(
+    () => selectedYear && selectedQuarter ? (grouped[selectedYear]?.[selectedQuarter] ?? []) : [],
+    [grouped, selectedYear, selectedQuarter]
+  );
 
   return (
     <>
       {/* Selected Photos Preview with Drag & Drop */}
-      <div className="flex flex-wrap gap-2">
-        {selectedMedia.map((item, index) => (
+      <div className="flex flex-wrap gap-3">
+        {selectedMedia.map(({ id, orientation, media }, index) => (
           <div
-            key={item.id}
+            key={id}
             draggable
-            onDragStart={(e) => handleDragStart(e, index, item.id)}
+            onDragStart={(e) => handleDragStart(e, index, id)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, index)}
             onDragEnd={handleDragEnd}
-            className={`group relative h-16 w-16 cursor-grab active:cursor-grabbing ${
+            className={`flex flex-col items-center gap-1 ${
               draggedIndex === index ? "opacity-50" : ""
-            } ${dragOverIndex === index ? "ring-2 ring-red-900 ring-offset-2" : ""}`}
+            } ${dragOverIndex === index ? "ring-2 ring-red-900 ring-offset-2 rounded" : ""}`}
           >
-            <img
-              src={getImageUrl(item.sizes?.thumbnail || item)}
-              alt={item.alt || ""}
-              className="h-full w-full rounded object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center rounded bg-black/0 opacity-0 transition-opacity group-hover:bg-black/30 group-hover:opacity-100">
-              <GripVertical className="h-5 w-5 text-white drop-shadow-lg" />
+            {/* Thumbnail */}
+            <div className="group relative h-20 w-16 cursor-grab active:cursor-grabbing">
+              <img
+                src={getImageUrl(media.sizes?.thumbnail || media)}
+                alt={media.alt || ""}
+                className="h-full w-full rounded object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center rounded bg-black/0 opacity-0 transition-opacity group-hover:bg-black/30 group-hover:opacity-100">
+                <GripVertical className="h-5 w-5 text-white drop-shadow-lg" />
+              </div>
+              <button
+                type="button"
+                onClick={() => onChange(selectedPhotos.filter((p) => p.id !== id))}
+                className="absolute -right-1 -top-1 z-10 rounded-full bg-red-600 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <X className="h-3 w-3" />
+              </button>
+              <span className="absolute bottom-0 left-0 rounded-tr bg-black/60 px-1 text-[10px] text-white">
+                #{index + 1}
+              </span>
             </div>
-            <button
-              type="button"
-              onClick={() => onChange(selectedIds.filter((id) => id !== item.id))}
-              className="absolute -right-1 -top-1 z-10 rounded-full bg-red-600 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <X className="h-3 w-3" />
-            </button>
-            <span className="absolute bottom-0 left-0 rounded-tr bg-black/60 px-1 text-xs text-white">
-              {index + 1}
-            </span>
+
+            {/* Orientation toggle — clearly visible below each photo */}
+            <div className="flex overflow-hidden rounded border border-gray-300 dark:border-gray-600 text-[10px] font-semibold">
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = selectedPhotos.map((p, i) =>
+                    i === index ? { ...p, orientation: "horizontal" as const } : p
+                  );
+                  onChange(updated);
+                }}
+                className={`px-2 py-0.5 transition-colors ${
+                  orientation === "horizontal"
+                    ? "bg-red-700 text-white"
+                    : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                H
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = selectedPhotos.map((p, i) =>
+                    i === index ? { ...p, orientation: "vertical" as const } : p
+                  );
+                  onChange(updated);
+                }}
+                className={`px-2 py-0.5 transition-colors border-l border-gray-300 dark:border-gray-600 ${
+                  orientation === "vertical"
+                    ? "bg-gray-700 text-white dark:bg-gray-400 dark:text-gray-900"
+                    : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                V
+              </button>
+            </div>
           </div>
         ))}
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="flex h-16 w-16 items-center justify-center rounded border-2 border-dashed border-gray-300 text-gray-400 transition-colors hover:border-red-900 hover:text-red-900 dark:border-gray-700"
-        >
-          <Plus className="h-5 w-5" />
-        </button>
+
+        <div className="flex flex-col items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            className="flex h-20 w-16 items-center justify-center rounded border-2 border-dashed border-gray-300 text-gray-400 transition-colors hover:border-red-900 hover:text-red-900 dark:border-gray-700"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+          <span className="text-[10px] text-gray-400">Add</span>
+        </div>
       </div>
+
+      {/* Orientation legend */}
+      {selectedPhotos.length > 0 && (
+        <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+          <span className="font-bold text-red-700">H</span> = Horizontal (wide) &nbsp;·&nbsp;
+          <span className="font-bold text-gray-600 dark:text-gray-400">V</span> = Vertical (portrait, default) &nbsp;·&nbsp;
+          First photo is always the full-width hero
+        </p>
+      )}
 
       {/* Modal */}
       {isOpen && (
@@ -292,7 +340,7 @@ export function ThemePhotoPicker({ selectedIds, onChange }: ThemePhotoPickerProp
               ) : (
                 <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
                   {visibleItems.map((item) => {
-                    const isSelected = localSelection.includes(item.id);
+                    const isSelected = localSelection.find((p) => p.id === item.id);
                     return (
                       <button
                         key={item.id}
@@ -313,6 +361,12 @@ export function ThemePhotoPicker({ selectedIds, onChange }: ThemePhotoPickerProp
                           <div className="absolute inset-0 flex items-center justify-center bg-red-900/50">
                             <Check className="h-8 w-8 text-white" />
                           </div>
+                        )}
+                        {/* Show position number if selected */}
+                        {isSelected && (
+                          <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1 text-xs text-white">
+                            #{selectedIds.indexOf(item.id) + 1}
+                          </span>
                         )}
                       </button>
                     );

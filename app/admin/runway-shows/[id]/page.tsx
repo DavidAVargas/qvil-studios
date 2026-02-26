@@ -48,9 +48,13 @@ async function getRunwayShow(id: string) {
       themes: ((show.themes as Array<{ name?: string; photos?: unknown[] }>) || []).map(
         (theme) => ({
           name: theme.name || "",
-          photos: ((theme.photos as Array<{ id?: string | number }>) || []).map((p) => ({
-            id: String(p?.id || ""),
-          })),
+          photos: ((theme.photos as Array<{ photo?: { id?: string | number }; id?: string | number; orientation?: string }>) || [])
+            .map((p) => {
+              // Handle both new format {photo, orientation} and old format {id}
+              const id = p?.photo?.id ?? p?.id;
+              return { id: String(id || ""), orientation: (p?.orientation as "horizontal" | "vertical") || "vertical" };
+            })
+            .filter((p) => p.id),
         })
       ),
     };
