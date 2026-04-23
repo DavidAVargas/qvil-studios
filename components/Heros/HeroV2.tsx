@@ -150,7 +150,7 @@ export function HeroV2() {
           <p className="text-xl md:text-2xl text-gray-300 font-light tracking-widest max-w-3xl mx-auto leading-relaxed">
             <span className="text-gray-200">FASHION IN DISTORTION</span>
             <br />
-            <span className="text-gray-500 text-lg italic mt-2 block">By Justin J Vargas</span>
+            <span className="text-white text-lg italic mt-2 block">By Justin J Vargas</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-6 w-full px-4 sm:px-0">
