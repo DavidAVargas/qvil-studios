@@ -64,17 +64,17 @@ export function Header() {
                     }}
                 />
 
-                <div className="relative z-10 mx-auto flex max-w-7xl items-center px-4 sm:px-6 py-4 sm:py-5">
+                <div className="relative z-10 mx-auto flex max-w-7xl items-center px-4 sm:px-6 py-2 sm:py-3">
 
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3">
                         <Image
-                            src="/images/qs-logo.jpg"
+                            src="/images/qs-logo-croped.png"
                             alt="Qvil Studios"
-                            width={120}
-                            height={32}
+                            width={200}
+                            height={200}
                             priority
-                            className="h-7 sm:h-8 w-auto dark:drop-shadow-[0_0_10px_rgba(220,38,38,0.3)]"
+                            className="h-10 sm:h-12 w-auto"
                         />
                     </Link>
 

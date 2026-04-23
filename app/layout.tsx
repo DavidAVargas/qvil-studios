@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     creator: "@qvilstudios",
   },
   icons: {
-    icon: "/images/qs-logo.jpg",
+    icon: "/icon.png",
   },
   robots: {
     index: true,
