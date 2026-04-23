@@ -10,6 +10,7 @@ import { Media } from "./collections/Media";
 import { RunwayShows } from "./collections/RunwayShows";
 import { RunwayPhotos } from "./collections/RunwayPhotos";
 import { Exhibitions } from "./collections/Exhibitions";
+import { About } from "./globals/About";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -30,6 +31,7 @@ export default buildConfig({
     },
   },
   collections: [Media, RunwayShows, RunwayPhotos, Exhibitions],
+  globals: [About],
   secret: process.env.PAYLOAD_SECRET || "your-secret-key",
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
