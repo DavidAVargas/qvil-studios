@@ -1,10 +1,9 @@
-import Image from "next/image";
-import { Hero } from "@/components/Heros/Hero";
+import { HeroV2 } from "@/components/Heros/HeroV2";
 
 export default function Home() {
   return (
     <div className="flex h-full grow flex-col">
-      <Hero />
+      <HeroV2 />
     </div>
   );
 }

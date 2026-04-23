@@ -69,7 +69,7 @@ export function Header() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3">
                         <Image
-                            src="/images/qvils-og-nobg1.png"
+                            src="/images/qs-logo.jpg"
                             alt="Qvil Studios"
                             width={120}
                             height={32}
