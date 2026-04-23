@@ -81,6 +81,48 @@ export function HeroV2() {
       {/* Animated noise background */}
       <div className="noise-bg" />
 
+      {/* Hero background image */}
+      <div
+        ref={containerRef}
+        className="absolute inset-0"
+        style={{ cursor: editing ? "crosshair" : "default" }}
+        onMouseDown={editing ? (e) => { setDragging(true); updateFromEvent(e); } : undefined}
+        onMouseMove={editing && dragging ? updateFromEvent : undefined}
+        onMouseUp={editing ? () => setDragging(false) : undefined}
+        onMouseLeave={editing ? () => setDragging(false) : undefined}
+        onTouchStart={editing ? (e) => { setDragging(true); updateFromEvent(e); } : undefined}
+        onTouchMove={editing && dragging ? updateFromEvent : undefined}
+        onTouchEnd={editing ? () => setDragging(false) : undefined}
+      >
+        <Image
+          src="/images/new-bg.PNG"
+          alt="Hero background"
+          fill
+          className="object-cover"
+          style={{ objectPosition: isMobile ? `${focalX}% ${focalY}%` : "50% 50%" }}
+          priority
+          draggable={false}
+        />
+
+        {/* Crosshair — mobile edit mode only */}
+        {editing && isMobile && (
+          <div
+            className="absolute pointer-events-none z-10"
+            style={{ left: `${focalX}%`, top: `${focalY}%`, transform: "translate(-50%, -50%)" }}
+          >
+            <div className="absolute w-px h-8 bg-white/80 left-1/2 -translate-x-1/2 -translate-y-full" />
+            <div className="absolute w-px h-8 bg-white/80 left-1/2 -translate-x-1/2 top-1/2" />
+            <div className="absolute h-px w-8 bg-white/80 top-1/2 -translate-y-1/2 -translate-x-full" />
+            <div className="absolute h-px w-8 bg-white/80 top-1/2 -translate-y-1/2 left-1/2" />
+            <div className="w-4 h-4 rounded-full border-2 border-white bg-white/30 shadow-lg" />
+          </div>
+        )}
+
+        {editing && isMobile && (
+          <div className="absolute inset-0 bg-black/30 pointer-events-none z-0" />
+        )}
+      </div>
+
       {/* Subtle dark red glow accents */}
       <div
         className="absolute top-0 left-0 w-1/3 h-1/3 blur-3xl pointer-events-none"
@@ -174,7 +216,6 @@ export function HeroV2() {
       {isMobile && isAdmin && (
         editing ? (
           <div
-            ref={containerRef}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-black/80 border border-white/20 px-4 py-3 backdrop-blur-sm"
           >
             <span className="text-white/60 text-xs uppercase tracking-widest">
