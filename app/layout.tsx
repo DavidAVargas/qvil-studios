@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: "QVIL Studios",
     images: [
       {
-        url: "/images/qvils-og.png",
+        url: "/images/qvils-logo.jpg",
         width: 1200,
         height: 630,
         alt: "QVIL Studios - Fashion in Distortion",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "QVIL Studios",
     description: "Fashion in Distortion - Contemporary fashion design by Justin J Vargas",
-    images: ["/images/qvils-og.png"],
+    images: ["/images/qvils-logo.jpg"],
     creator: "@qvilstudios",
   },
   icons: {
